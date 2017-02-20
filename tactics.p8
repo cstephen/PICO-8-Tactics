@@ -118,30 +118,17 @@ function _update()
   if btnp(4) then
     if moving == false
     and fg[select.x][select.y].sprite != 0 then
-      chosen.x = select.x
-      chosen.y = select.y
-      valid = {}
-      moving = true
-      range(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254)
-      valid[chosen.x][chosen.y] = nil
+      movespaces();
     elseif moving == true
     and action == false
     and valid[select.x] != nil
     and valid[select.x][select.y] != nil then
-      fg[select.x][select.y] = copy(fg[chosen.x][chosen.y])
-      fg[chosen.x][chosen.y] = {sprite = 0}
-      gridclear(bg)
-      moving = false
-      action = true
-      valid = {}
-      range(select.x, select.y, fg[select.x][select.y].attackmax, 253)
-      valid = {}
-      range(select.x, select.y, fg[select.x][select.y].attackmin, 0)
+      move()
+      attackspaces()
     elseif moving == false
     and action == true
     and bg[select.x][select.y].sprite == 253 then
-      gridclear(bg)
-      action = false
+      attack()
     end
   end
 end
@@ -151,6 +138,21 @@ function _draw()
   griddraw(bg)
   griddraw(fg)
   selectdraw()
+end
+
+function copy(src)
+  dest = {}
+  dest.name = src.name
+  dest.sprite = src.sprite
+  dest.speed = src.speed
+  dest.attackmin = src.attackmin
+  dest.attackmax = src.attackmax
+  dest.maxhp = src.maxhp
+  dest.hp = src.hp
+  dest.xp = src.xp
+  dest.level = src.level
+  dest.alignment = src.alignment
+  return dest
 end
 
 function gridclear(grid)
@@ -171,18 +173,18 @@ function griddraw(grid)
   end
 end
 
-function selectdraw()
-  spr(255, select.y * 8, select.x * 8)
-  if fg[select.x][select.y].sprite != 0 then
-    showstats(select.x, select.y)
-  end
-end
-
 function spritepos(s)
   sprite = {}
   sprite.x = s % 16
   sprite.y = flr(s / 16)
   return sprite
+end
+
+function selectdraw()
+  spr(255, select.y * 8, select.x * 8)
+  if fg[select.x][select.y].sprite != 0 then
+    showstats(select.x, select.y)
+  end
 end
 
 function showstats(x, y)
@@ -201,19 +203,33 @@ function unit(base, alignment)
   return new
 end
 
-function copy(src)
-  dest = {}
-  dest.name = src.name
-  dest.sprite = src.sprite
-  dest.speed = src.speed
-  dest.attackmin = src.attackmin
-  dest.attackmax = src.attackmax
-  dest.maxhp = src.maxhp
-  dest.hp = src.hp
-  dest.xp = src.xp
-  dest.level = src.level
-  dest.alignment = src.alignment
-  return dest
+function movespaces()
+  chosen.x = select.x
+  chosen.y = select.y
+  valid = {}
+  moving = true
+  range(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254)
+  valid[chosen.x][chosen.y] = nil
+end
+
+function attackspaces()
+  valid = {}
+  range(select.x, select.y, fg[select.x][select.y].attackmax, 253)
+  valid = {}
+  range(select.x, select.y, fg[select.x][select.y].attackmin, 0)
+end
+
+function move()
+  fg[select.x][select.y] = copy(fg[chosen.x][chosen.y])
+  fg[chosen.x][chosen.y] = {sprite = 0}
+  gridclear(bg)
+  moving = false
+  action = true
+end
+
+function attack()
+  gridclear(bg)
+  action = false
 end
 
 function range(x, y, steps, sprite)

@@ -269,30 +269,39 @@ function range(x, y, steps, sprite, alignment, block)
     bg[x][y] = {sprite = sprite}
   end
 
-  if y - 1 >= 0
-  and (block == false or (block == true and alignmask[x][y - 1] == "neutral"))
-  and steps > 0 then
-    range(x, y - 1, steps - 1, sprite, alignment, block)
-  end
-
-  if y + 1 < 16
-  and (block == false or (block == true and alignmask[x][y + 1] == "neutral"))
-  and steps > 0 then
-    range(x, y + 1, steps - 1, sprite, alignment, block)
-  end
-
-  if x - 1 >= 0
-  and (block == false or (block == true and alignmask[x - 1][y] == "neutral"))
-  and steps > 0 then
+  if validrange(x - 1, y, steps, block) then
     range(x - 1, y, steps - 1, sprite, alignment, block)
   end
 
-  if x + 1 < 16
-  and (block == false or (block == true and alignmask[x + 1][y] == "neutral"))
-  and steps > 0 then
+  if validrange(x + 1, y, steps, block)then
     range(x + 1, y, steps - 1, sprite, alignment, block)
   end
+
+  if validrange(x, y - 1, steps, block) then
+    range(x, y - 1, steps - 1, sprite, alignment, block)
+  end
+
+  if validrange(x, y + 1, steps, block) then
+    range(x, y + 1, steps - 1, sprite, alignment, block)
+  end
 end
+
+function validrange(x, y, steps, block)
+  if x < 0 or x >= 16 or y < 0 or y >= 16 then
+    return false
+  end
+
+  if block == true and alignmask[x][y] != "neutral" then
+    return false
+  end
+
+  if steps <= 0 then
+    return false
+  end
+
+  return true
+end
+
 __gfx__
 000000000000007d000660000000007600f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000007dc006666000000776600f500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

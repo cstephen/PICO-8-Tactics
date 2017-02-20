@@ -6,8 +6,6 @@ chosen = {}
 moving = false
 action = false
 gridsize = {x = 16, y = 16}
-bg = {}
-fg = {}
 
 levels = {}
 levels[1] = 0
@@ -82,19 +80,24 @@ archer = {
 }
 
 function _init()
-  gridclear(bg)
-  gridclear(fg)
+  bg = gridinit()
+  fg = gridinit()
+  alignmask = gridinit()
 
-  fg[0][0] = unit(knight, "good")
+  gridclear(bg, {sprite = 0})
+  gridclear(fg, {sprite = 0})
+  gridclear(alignmask, "neutral")
+
+  place(0, 0, unit(knight, "good"))
   fg[0][0].hp = 7
 
-  fg[0][1] = unit(dwarf, "good")
+  place(0, 1, unit(dwarf, "good"))
   fg[0][1].hp = 2
 
-  fg[1][4] = unit(dwarf, "evil")
+  place(1, 4, unit(dwarf, "evil"))
   fg[1][4].hp = 7
 
-  fg[0][3] = unit(archer, "good")
+  place(0, 3, unit(archer, "good"))
   fg[0][3].hp = 5
 end
 
@@ -117,6 +120,7 @@ function _update()
   end
   if btnp(4) then
     if moving == false
+    and action == false
     and fg[select.x][select.y].sprite != 0 then
       movespaces();
     elseif moving == true
@@ -155,11 +159,18 @@ function copy(src)
   return dest
 end
 
-function gridclear(grid)
+function gridinit()
+  grid = {}
   for i=0, gridsize.x do
     grid[i] = {}
+  end
+  return grid
+end
+
+function gridclear(grid, value)
+  for i=0, gridsize.x do
     for j=0, gridsize.y do
-      grid[i][j] = {sprite = 0}
+      grid[i][j] = value
     end
   end
 end
@@ -208,31 +219,41 @@ function movespaces()
   chosen.y = select.y
   valid = {}
   moving = true
-  range(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254)
+  range(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254, "neutral", true)
   valid[chosen.x][chosen.y] = nil
 end
 
 function attackspaces()
   valid = {}
-  range(select.x, select.y, fg[select.x][select.y].attackmax, 253)
+  range(select.x, select.y, fg[select.x][select.y].attackmax, 253, "evil", false)
   valid = {}
-  range(select.x, select.y, fg[select.x][select.y].attackmin, 0)
+  range(select.x, select.y, fg[select.x][select.y].attackmin, 0, "evil", false)
 end
 
 function move()
-  fg[select.x][select.y] = copy(fg[chosen.x][chosen.y])
-  fg[chosen.x][chosen.y] = {sprite = 0}
-  gridclear(bg)
+  place(select.x, select.y, fg[chosen.x][chosen.y])
+  unplace(chosen.x, chosen.y)
+  gridclear(bg, {sprite = 0})
   moving = false
   action = true
 end
 
+function place(x, y, unit)
+  fg[x][y] = copy(unit)
+  alignmask[x][y] = unit.alignment
+end
+
+function unplace(x, y)
+  fg[x][y] = {sprite = 0}
+  alignmask[x][y] = "neutral"
+end
+
 function attack()
-  gridclear(bg)
+  gridclear(bg, {sprite = 0})
   action = false
 end
 
-function range(x, y, steps, sprite)
+function range(x, y, steps, sprite, alignment, block)
   if valid[x] == nil then
     valid[x] = {}
   end
@@ -244,30 +265,32 @@ function range(x, y, steps, sprite)
     return
   end
 
-  bg[x][y] = {sprite = sprite}
+  if alignmask[x][y] == alignment then
+    bg[x][y] = {sprite = sprite}
+  end
 
   if y - 1 >= 0
-  and steps > 0
-  and fg[x][y - 1].sprite == 0 then
-    range(x, y - 1, steps - 1, sprite)
+  and (block == false or (block == true and alignmask[x][y - 1] == "neutral"))
+  and steps > 0 then
+    range(x, y - 1, steps - 1, sprite, alignment, block)
   end
 
   if y + 1 < 16
-  and steps > 0
-  and fg[x][y + 1].sprite == 0 then
-    range(x, y + 1, steps - 1, sprite)
+  and (block == false or (block == true and alignmask[x][y + 1] == "neutral"))
+  and steps > 0 then
+    range(x, y + 1, steps - 1, sprite, alignment, block)
   end
 
   if x - 1 >= 0
-  and steps > 0
-  and fg[x - 1][y].sprite == 0 then
-    range(x - 1, y, steps - 1, sprite)
+  and (block == false or (block == true and alignmask[x - 1][y] == "neutral"))
+  and steps > 0 then
+    range(x - 1, y, steps - 1, sprite, alignment, block)
   end
 
   if x + 1 < 16
-  and steps > 0
-  and fg[x + 1][y].sprite == 0 then
-    range(x + 1, y, steps - 1, sprite)
+  and (block == false or (block == true and alignmask[x + 1][y] == "neutral"))
+  and steps > 0 then
+    range(x + 1, y, steps - 1, sprite, alignment, block)
   end
 end
 __gfx__

@@ -4,7 +4,7 @@ __lua__
 select = {x = 0, y = 0}
 chosen = {}
 moving = false
-action = false
+attacking = false
 gridsize = {x = 16, y = 16}
 
 levels = {}
@@ -82,11 +82,11 @@ archer = {
 function _init()
   bg = gridinit()
   fg = gridinit()
-  alignmask = gridinit()
+  typemask = gridinit()
 
   gridclear(bg, {sprite = 0})
   gridclear(fg, {sprite = 0})
-  gridclear(alignmask, "neutral")
+  gridclear(typemask, "neutral")
 
   place(0, 0, unit(knight, "good"))
   fg[0][0].hp = 7
@@ -120,17 +120,17 @@ function _update()
   end
   if btnp(4) then
     if moving == false
-    and action == false
+    and attacking == false
     and fg[select.x][select.y].sprite != 0 then
       movespaces();
     elseif moving == true
-    and action == false
+    and attacking == false
     and valid[select.x] != nil
     and valid[select.x][select.y] != nil then
       move()
       attackspaces()
     elseif moving == false
-    and action == true
+    and attacking == true
     and bg[select.x][select.y].sprite == 253 then
       attack()
     end
@@ -217,17 +217,17 @@ end
 function movespaces()
   chosen.x = select.x
   chosen.y = select.y
-  valid = {}
   moving = true
-  range(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254, "neutral", true)
+  explorerange(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254, "neutral", true)
   valid[chosen.x][chosen.y] = nil
 end
 
 function attackspaces()
-  valid = {}
-  range(select.x, select.y, fg[select.x][select.y].attackmax, 253, "evil", false)
-  valid = {}
-  range(select.x, select.y, fg[select.x][select.y].attackmin, 0, "evil", false)
+  goodspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmax, 253, "evil", false)
+  badspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmin, 0, "evil", false)
+  if goodspaces - badspaces > 0 then
+    attacking = true
+  end
 end
 
 function move()
@@ -235,25 +235,31 @@ function move()
   unplace(chosen.x, chosen.y)
   gridclear(bg, {sprite = 0})
   moving = false
-  action = true
 end
 
 function place(x, y, unit)
   fg[x][y] = copy(unit)
-  alignmask[x][y] = unit.alignment
+  typemask[x][y] = unit.alignment
 end
 
 function unplace(x, y)
   fg[x][y] = {sprite = 0}
-  alignmask[x][y] = "neutral"
+  typemask[x][y] = "neutral"
 end
 
 function attack()
   gridclear(bg, {sprite = 0})
-  action = false
+  attacking = false
 end
 
-function range(x, y, steps, sprite, alignment, block)
+function explorerange(x, y, steps, sprite, alignment, obstacles)
+  valid = {}
+  spaces = 0
+  crawlspace(x, y, steps, sprite, alignment, obstacles)
+  return spaces
+end
+
+function crawlspace(x, y, steps, sprite, alignment, obstacles)
   if valid[x] == nil then
     valid[x] = {}
   end
@@ -265,33 +271,34 @@ function range(x, y, steps, sprite, alignment, block)
     return
   end
 
-  if alignmask[x][y] == alignment then
+  if typemask[x][y] == alignment then
     bg[x][y] = {sprite = sprite}
+    spaces += 1
   end
 
-  if validrange(x - 1, y, steps, block) then
-    range(x - 1, y, steps - 1, sprite, alignment, block)
+  if validspace(x - 1, y, steps, block) then
+    crawlspace(x - 1, y, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validrange(x + 1, y, steps, block)then
-    range(x + 1, y, steps - 1, sprite, alignment, block)
+  if validspace(x + 1, y, steps, block)then
+    crawlspace(x + 1, y, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validrange(x, y - 1, steps, block) then
-    range(x, y - 1, steps - 1, sprite, alignment, block)
+  if validspace(x, y - 1, steps, block) then
+    crawlspace(x, y - 1, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validrange(x, y + 1, steps, block) then
-    range(x, y + 1, steps - 1, sprite, alignment, block)
+  if validspace(x, y + 1, steps, block) then
+    crawlspace(x, y + 1, steps - 1, sprite, alignment, obstacles)
   end
 end
 
-function validrange(x, y, steps, block)
+function validspace(x, y, steps, block)
   if x < 0 or x >= 16 or y < 0 or y >= 16 then
     return false
   end
 
-  if block == true and alignmask[x][y] != "neutral" then
+  if block == true and typemask[x][y] != "neutral" then
     return false
   end
 

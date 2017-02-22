@@ -121,7 +121,7 @@ function _update()
   if btnp(4) then
     if moving == false
     and attacking == false
-    and fg[select.x][select.y].sprite != 0 then
+    and typemask[select.x][select.y] == "good" then
       movespaces();
     elseif moving == true
     and attacking == false

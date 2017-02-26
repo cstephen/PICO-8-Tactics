@@ -208,8 +208,8 @@ function animate()
       }
 
       animation.friendly.move = {
-        x = (friendly.y * 8 + (((32 - friendly.y * 8) / 30) * animation.frame)) - animation.friendly.size.x / 2,
-        y = (friendly.x * 8 + (((64 - friendly.x * 8) / 30) * animation.frame)) - animation.friendly.size.y / 2
+        x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * animation.frame)) - animation.friendly.size.x / 2 + 4,
+        y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * animation.frame)) - animation.friendly.size.y / 2 + 4
       }
 
       animation.enemy.size = {
@@ -218,8 +218,8 @@ function animate()
       }
 
       animation.enemy.move = {
-        x = (enemy.y * 8 + (((96 - enemy.y * 8) / 30) * animation.frame)) - animation.enemy.size.x / 2,
-        y = (enemy.x * 8 + (((64 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2
+        x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * animation.frame)) - animation.enemy.size.x / 2 + 4,
+        y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2 + 4
       }
     end
 

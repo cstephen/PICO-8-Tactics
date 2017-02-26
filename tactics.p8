@@ -201,6 +201,7 @@ end
 
 function animate()
   if animation != nil then
+    animation.frame += 1
     if animation.frame <= 30 then
       animation.friendly.size = {
         x = 8 + 8 * (animation.frame / 15),
@@ -221,6 +222,51 @@ function animate()
         x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * animation.frame)) - animation.enemy.size.x / 2 + 4,
         y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2 + 4
       }
+    elseif animation.frame > 60 and animation.frame <= 63 then
+      animation.friendly.move = {
+        x = animation.friendly.move.x + 1,
+        y = animation.friendly.move.y
+      }
+    elseif animation.frame > 63 and animation.frame <= 66 then
+      animation.friendly.move = {
+        x = animation.friendly.move.x - 1,
+        y = animation.friendly.move.y
+      }
+    elseif animation.frame > 81 and animation.frame <= 83 then
+      animation.enemy.move = {
+        x = animation.enemy.move.x - 1,
+        y = animation.enemy.move.y
+      }
+    elseif animation.frame > 83 and animation.frame <= 86 then
+      animation.enemy.move = {
+        x = animation.enemy.move.x + 1,
+        y = animation.enemy.move.y
+      }
+    elseif animation.frame > 116 and animation.frame <= 146 then
+      animation.friendly.size = {
+        x = 8 + 8 * ((30 - (animation.frame - 116)) / 15),
+        y = 8 + 8 * ((30 - (animation.frame - 116)) / 15)
+      }
+
+      animation.friendly.move = {
+        x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * (30 - (animation.frame - 116)))) - animation.friendly.size.x / 2 + 4,
+        y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * (30 - (animation.frame - 116)))) - animation.friendly.size.y / 2 + 4
+      }
+
+      animation.enemy.size = {
+        x = 8 + 8 * ((30 - (animation.frame - 116)) / 15),
+        y = 8 + 8 * ((30 - (animation.frame - 116)) / 15)
+      }
+
+      animation.enemy.move = {
+        x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * (30 - (animation.frame - 116)))) - animation.enemy.size.x / 2 + 4,
+        y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * (30 - (animation.frame - 116)))) - animation.enemy.size.y / 2 + 4
+      }
+    elseif animation.frame > 146 then
+      fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
+      fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
+      animation = nil
+      return
     end
 
     pos = spritepos(animation.friendly.sprite)
@@ -228,14 +274,6 @@ function animate()
 
     pos = spritepos(animation.enemy.sprite)
     sspr(pos.x * 8, pos.y * 8, 8, 8, animation.enemy.move.x, animation.enemy.move.y, animation.enemy.size.x, animation.enemy.size.y)
-
-    animation.frame += 1
-
-    if animation.frame > 60 then
-      fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
-      fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
-      animation = nil
-    end
   end
 end
 

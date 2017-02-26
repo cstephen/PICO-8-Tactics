@@ -10,8 +10,14 @@ This project is still very much in its infancy. I've been focusing on getting th
 - The ability to determine possible attack targets given a minimum and maximum attack range.
 - The very crude beginnings of a battle animation sequence.
 
-It's not much to look at yet, but I promise to update this GIF as more progress is made!
+It's not much to look at yet, but I promise to add GIFs of my progress. Here are a couple:
 
-![Battle Animation](http://i.imgur.com/xZg7P2t.gif)
+**Exploring possible moves (blue) while wrapping around other units**
+
+![Exploring Moves](http://i.imgur.com/YKnwr1M.gif)
+
+**Finding attack options (yellow), with beginnings of a battle sequence**
+
+![Battle Animation](http://i.imgur.com/mhijay3.gif)
 
 I've written about some of the challenges I've encountered at [my game development blog](http://www.craigstephenson.us/blog/category/game-development/). Stay tuned for more!

@@ -142,6 +142,7 @@ function _draw()
   griddraw(bg)
   griddraw(fg)
   selectdraw()
+  animate()
 end
 
 function copy(src)
@@ -198,6 +199,46 @@ function selectdraw()
   end
 end
 
+function animate()
+  if animation != nil then
+    if animation.frame <= 30 then
+      animation.friendly.size = {
+        x = 8 + 8 * (animation.frame / 15),
+        y = 8 + 8 * (animation.frame / 15)
+      }
+
+      animation.friendly.move = {
+        x = (friendly.y * 8 + (((32 - friendly.y * 8) / 30) * animation.frame)) - animation.friendly.size.x / 2,
+        y = (friendly.x * 8 + (((64 - friendly.x * 8) / 30) * animation.frame)) - animation.friendly.size.y / 2
+      }
+
+      animation.enemy.size = {
+        x = 8 + 8 * (animation.frame / 15),
+        y = 8 + 8 * (animation.frame / 15)
+      }
+
+      animation.enemy.move = {
+        x = (enemy.y * 8 + (((96 - enemy.y * 8) / 30) * animation.frame)) - animation.enemy.size.x / 2,
+        y = (enemy.x * 8 + (((64 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2
+      }
+    end
+
+    pos = spritepos(animation.friendly.sprite)
+    sspr(pos.x * 8, pos.y * 8, 8, 8, animation.friendly.move.x, animation.friendly.move.y, animation.friendly.size.x, animation.friendly.size.y)
+
+    pos = spritepos(animation.enemy.sprite)
+    sspr(pos.x * 8, pos.y * 8, 8, 8, animation.enemy.move.x, animation.enemy.move.y, animation.enemy.size.x, animation.enemy.size.y)
+
+    animation.frame += 1
+
+    if animation.frame > 60 then
+      fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
+      fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
+      animation = nil
+    end
+  end
+end
+
 function showstats(x, y)
   unit = fg[x][y]
   print(unit.name, 100, 0, colors[unit.alignment])
@@ -222,19 +263,47 @@ function movespaces()
   valid[chosen.x][chosen.y] = nil
 end
 
+function move()
+  place(select.x, select.y, fg[chosen.x][chosen.y])
+  unplace(chosen.x, chosen.y)
+  gridclear(bg, {sprite = 0})
+  moving = false
+end
+
 function attackspaces()
   goodspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmax, 253, "evil", false)
   badspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmin, 0, "evil", false)
   if goodspaces - badspaces > 0 then
     attacking = true
   end
+
+  friendly = {
+    x = select.x,
+    y = select.y
+  }
 end
 
-function move()
-  place(select.x, select.y, fg[chosen.x][chosen.y])
-  unplace(chosen.x, chosen.y)
+function attack()
   gridclear(bg, {sprite = 0})
-  moving = false
+  attacking = false
+
+  enemy = {
+    x = select.x,
+    y = select.y
+  }
+
+  animation = {
+    frame = 0,
+    friendly = {
+      sprite = fg[friendly.x][friendly.y].sprite
+    },
+    enemy = {
+      sprite = fg[enemy.x][enemy.y].sprite
+    }
+  }
+
+  fg[friendly.x][friendly.y].sprite = 0
+  fg[enemy.x][enemy.y].sprite = 0
 end
 
 function place(x, y, unit)
@@ -245,11 +314,6 @@ end
 function unplace(x, y)
   fg[x][y] = {sprite = 0}
   typemask[x][y] = "neutral"
-end
-
-function attack()
-  gridclear(bg, {sprite = 0})
-  attacking = false
 end
 
 function explorerange(x, y, steps, sprite, alignment, obstacles)

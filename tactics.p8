@@ -220,19 +220,19 @@ function animate()
     if animation.frame > 30 and animation.frame < 116 then
       friendlystats = {
         pos = {
-          x = 20,
+          x = 16,
           y = 75
         },
-        width = 28
+        width = 29
       }
       showstats(friendly, friendlystats)
 
       enemystats = {
         pos = {
-          x = 84,
+          x = 82,
           y = 75
         },
-        width = 28
+        width = 29
       }
       showstats(enemy, enemystats)
     end
@@ -289,7 +289,7 @@ function zoom(baseframe, direction)
   }
 
   animation.enemy.move = {
-    x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
+    x = (enemy.y * 8 + (((94 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
     y = (enemy.x * 8 + (((45 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
   }
 end

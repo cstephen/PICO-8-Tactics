@@ -126,7 +126,8 @@ function _update()
     elseif moving == true
     and attacking == false
     and valid[select.x] != nil
-    and valid[select.x][select.y] != nil then
+    and valid[select.x][select.y] != nil
+    and typemask[select.x][select.y] == "neutral" then
       move()
       attackspaces()
     elseif moving == false

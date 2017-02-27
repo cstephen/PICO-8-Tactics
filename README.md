@@ -13,7 +13,7 @@ This project is still very much in its infancy. I've been focusing on getting th
 Here are how things look so far:
 
 ![Moving and Fighting](http://i.imgur.com/O39mhb0.gif)
-*Explore possible moves (blue) find possible
-attacks (yellow) and initiate battle.*
+
+*GIF #1: Explore possible moves (blue) find possible attacks (yellow) and initiate battle.*
 
 I've written about some of the challenges I've encountered at [my game development blog](http://www.craigstephenson.us/blog/category/game-development/). Stay tuned for more!

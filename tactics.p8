@@ -40,6 +40,7 @@ knight = {
   speed = 2,
   attackmin = 0,
   attackmax = 1,
+  might = 3,
   maxhp = 10,
   hp = 10,
   xp = 0,
@@ -51,6 +52,7 @@ dwarf = {
   speed = 2,
   attackmin = 0,
   attackmax = 1,
+  might = 4,
   maxhp = 15,
   hp = 15,
   xp = 0,
@@ -62,6 +64,7 @@ lancer = {
   speed = 3,
   attackmin = 0,
   attackmax = 2,
+  might = 2,
   maxhp = 10,
   hp = 10,
   xp = 0,
@@ -73,6 +76,7 @@ archer = {
   speed = 4,
   attackmin = 1,
   attackmax = 2,
+  might = 1,
   maxhp = 5,
   hp = 5,
   xp = 0,
@@ -157,6 +161,7 @@ function copy(src)
   dest.speed = src.speed
   dest.attackmin = src.attackmin
   dest.attackmax = src.attackmax
+  dest.might = src.might
   dest.maxhp = src.maxhp
   dest.hp = src.hp
   dest.xp = src.xp
@@ -246,16 +251,28 @@ function animate()
     elseif animation.frame > 60 and animation.frame <= 63 then
       nudge("friendly", 1)
     elseif animation.frame > 63 and animation.frame <= 66 then
+      damage("enemy")
       nudge("friendly", -1)
     elseif animation.frame > 81 and animation.frame <= 83 then
       nudge("enemy", -1)
     elseif animation.frame > 83 and animation.frame <= 86 then
+      damage("friendly")
       nudge("enemy", 1)
     elseif animation.frame > 116 and animation.frame <= 146 then
       zoom(116, -1)
     elseif animation.frame > 146 then
-      fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
-      fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
+      if fg[friendly.x][friendly.y].hp == 0 then
+        die(friendly)
+      else
+        fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
+      end
+
+      if fg[enemy.x][enemy.y].hp == 0 then
+        die(enemy)
+      else
+        fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
+      end
+
       animation = nil
       return
     end
@@ -303,6 +320,27 @@ function nudge(alignment, direction)
     x = animation[alignment].move.x + direction,
     y = animation[alignment].move.y
   }
+end
+
+function damage(alignment)
+  if alignment == "friendly"
+  and fg[enemy.x][enemy.y].hp > 0 then
+    fg[friendly.x][friendly.y].hp -= fg[enemy.x][enemy.y].might / 3
+    if fg[friendly.x][friendly.y].hp < 0 then
+      fg[friendly.x][friendly.y].hp = 0
+    end
+  elseif alignment == "enemy"
+  and fg[friendly.x][friendly.y].hp > 0 then
+    fg[enemy.x][enemy.y].hp -= fg[friendly.x][friendly.y].might / 3
+    if fg[enemy.x][enemy.y].hp < 0 then
+      fg[enemy.x][enemy.y].hp = 0
+    end
+  end
+end
+
+function die(unitpos)
+  fg[unitpos.x][unitpos.y] = {sprite = 0}
+  typemask[unitpos.x][unitpos.y] = "neutral"
 end
 
 function showstats(unitpos, screen)

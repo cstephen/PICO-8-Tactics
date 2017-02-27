@@ -203,25 +203,7 @@ function animate()
   if animation != nil then
     animation.frame += 1
     if animation.frame <= 30 then
-      animation.friendly.size = {
-        x = 8 + 8 * (animation.frame / 15),
-        y = 8 + 8 * (animation.frame / 15)
-      }
-
-      animation.friendly.move = {
-        x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * animation.frame)) - animation.friendly.size.x / 2 + 4,
-        y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * animation.frame)) - animation.friendly.size.y / 2 + 4
-      }
-
-      animation.enemy.size = {
-        x = 8 + 8 * (animation.frame / 15),
-        y = 8 + 8 * (animation.frame / 15)
-      }
-
-      animation.enemy.move = {
-        x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * animation.frame)) - animation.enemy.size.x / 2 + 4,
-        y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2 + 4
-      }
+      zoom(0, 1)
     elseif animation.frame > 60 and animation.frame <= 63 then
       nudge("friendly", 1)
     elseif animation.frame > 63 and animation.frame <= 66 then
@@ -231,25 +213,7 @@ function animate()
     elseif animation.frame > 83 and animation.frame <= 86 then
       nudge("enemy", 1)
     elseif animation.frame > 116 and animation.frame <= 146 then
-      animation.friendly.size = {
-        x = 8 + 8 * ((30 - (animation.frame - 116)) / 15),
-        y = 8 + 8 * ((30 - (animation.frame - 116)) / 15)
-      }
-
-      animation.friendly.move = {
-        x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * (30 - (animation.frame - 116)))) - animation.friendly.size.x / 2 + 4,
-        y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * (30 - (animation.frame - 116)))) - animation.friendly.size.y / 2 + 4
-      }
-
-      animation.enemy.size = {
-        x = 8 + 8 * ((30 - (animation.frame - 116)) / 15),
-        y = 8 + 8 * ((30 - (animation.frame - 116)) / 15)
-      }
-
-      animation.enemy.move = {
-        x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * (30 - (animation.frame - 116)))) - animation.enemy.size.x / 2 + 4,
-        y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * (30 - (animation.frame - 116)))) - animation.enemy.size.y / 2 + 4
-      }
+      zoom(116, -1)
     elseif animation.frame > 146 then
       fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
       fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
@@ -263,6 +227,36 @@ function animate()
     pos = spritepos(animation.enemy.sprite)
     sspr(pos.x * 8, pos.y * 8, 8, 8, animation.enemy.move.x, animation.enemy.move.y, animation.enemy.size.x, animation.enemy.size.y)
   end
+end
+
+function zoom(baseframe, direction)
+  if direction > 0 then
+    progress = animation.frame - baseframe
+  else
+    progress = 30 - (animation.frame - baseframe)
+  end
+
+  scale = 8 + 8 * (progress / 15)
+
+  animation.friendly.size = {
+    x = scale,
+    y = scale
+  }
+
+  animation.friendly.move = {
+    x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
+    y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
+  }
+
+  animation.enemy.size = {
+    x = scale,
+    y = scale
+  }
+
+  animation.enemy.move = {
+    x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
+    y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
+  }
 end
 
 function nudge(alignment, direction)

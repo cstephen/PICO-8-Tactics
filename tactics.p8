@@ -196,13 +196,47 @@ end
 function selectdraw()
   spr(255, select.y * 8, select.x * 8)
   if fg[select.x][select.y].sprite != 0 then
-    showstats(select.x, select.y)
+    unitpos = {
+      x = select.x,
+      y = select.y
+    }
+
+    screen = {
+      pos = {
+        x = 100,
+        y = 0
+      },
+      width = 28
+    }
+
+    showstats(unitpos, screen)
   end
 end
 
 function animate()
   if animation != nil then
     animation.frame += 1
+
+    if animation.frame > 30 and animation.frame < 116 then
+      friendlystats = {
+        pos = {
+          x = 20,
+          y = 75
+        },
+        width = 28
+      }
+      showstats(friendly, friendlystats)
+
+      enemystats = {
+        pos = {
+          x = 84,
+          y = 75
+        },
+        width = 28
+      }
+      showstats(enemy, enemystats)
+    end
+
     if animation.frame <= 30 then
       zoom(0, 1)
     elseif animation.frame > 60 and animation.frame <= 63 then
@@ -246,7 +280,7 @@ function zoom(baseframe, direction)
 
   animation.friendly.move = {
     x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
-    y = (friendly.x * 8 + (((60 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
+    y = (friendly.x * 8 + (((45 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
   }
 
   animation.enemy.size = {
@@ -256,7 +290,7 @@ function zoom(baseframe, direction)
 
   animation.enemy.move = {
     x = (enemy.y * 8 + (((92 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
-    y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
+    y = (enemy.x * 8 + (((45 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
   }
 end
 
@@ -267,13 +301,13 @@ function nudge(alignment, direction)
   }
 end
 
-function showstats(x, y)
-  unit = fg[x][y]
-  print(unit.name, 100, 0, colors[unit.alignment])
-  print("lvl. 1", 100, 8, colors[unit.alignment])
-  health = unit.hp / unit.maxhp * 28
-  rect(100, 16, 100 + health, 17, colors[unit.alignment])
-  rect(100 + health, 16, 128, 17, 2)
+function showstats(unitpos, screen)
+  unit = fg[unitpos.x][unitpos.y]
+  print(unit.name, screen.pos.x, screen.pos.y, colors[unit.alignment])
+  print("lvl. 1", screen.pos.x, screen.pos.y + 8, colors[unit.alignment])
+  health = unit.hp / unit.maxhp * screen.width
+  rect(screen.pos.x, screen.pos.y + 16, screen.pos.x + health, screen.pos.y + 17, colors[unit.alignment])
+  rect(screen.pos.x + health, screen.pos.y + 16, screen.pos.x + screen.width, screen.pos.y + 17, 2)
 end
 
 function unit(base, alignment)

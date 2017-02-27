@@ -103,19 +103,23 @@ end
 
 function _update()
   if btnp(0)
-  and select.y > 0 then
+  and select.y > 0
+  and animation == nil then
     select.y -= 1
   end
   if btnp(1)
-  and select.y < 15 then
+  and select.y < 15
+  and animation == nil then
     select.y += 1
   end
   if btnp(2)
-  and select.x > 0 then
+  and select.x > 0
+  and animation == nil then
     select.x -= 1
   end
   if btnp(3)
-  and select.x < 15 then
+  and select.x < 15
+  and animation == nil then
     select.x += 1
   end
   if btnp(4) then

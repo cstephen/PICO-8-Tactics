@@ -8,16 +8,16 @@ This project is still very much in its infancy. I've been focusing on getting th
 - Unit archetypes with their own sprites, speed, and attack range attributes.
 - The ability to explore possible spaces to move based on unit speed and environmental obstacles.
 - The ability to determine possible attack targets given a minimum and maximum attack range.
-- The very crude beginnings of a battle animation sequence.
+- A battle animation sequence showing each unit's stats.
 
 It's not much to look at yet, but I promise to add GIFs of my progress. Here are a couple:
 
-**Exploring possible moves (blue) while wrapping around other units**
+**Explore possible moves (blue) while wrapping around other units**
 
 ![Exploring Moves](http://i.imgur.com/YKnwr1M.gif)
 
-**Finding attack options (yellow), with beginnings of a battle sequence**
+**Find attack options (yellow) and play battle animation**
 
-![Battle Animation](http://i.imgur.com/mhijay3.gif)
+![Battle Animation](http://i.imgur.com/3OltJrR.gif)
 
 I've written about some of the challenges I've encountered at [my game development blog](http://www.craigstephenson.us/blog/category/game-development/). Stay tuned for more!

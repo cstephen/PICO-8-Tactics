@@ -223,25 +223,13 @@ function animate()
         y = (enemy.x * 8 + (((60 - enemy.x * 8) / 30) * animation.frame)) - animation.enemy.size.y / 2 + 4
       }
     elseif animation.frame > 60 and animation.frame <= 63 then
-      animation.friendly.move = {
-        x = animation.friendly.move.x + 1,
-        y = animation.friendly.move.y
-      }
+      nudge("friendly", 1)
     elseif animation.frame > 63 and animation.frame <= 66 then
-      animation.friendly.move = {
-        x = animation.friendly.move.x - 1,
-        y = animation.friendly.move.y
-      }
+      nudge("friendly", -1)
     elseif animation.frame > 81 and animation.frame <= 83 then
-      animation.enemy.move = {
-        x = animation.enemy.move.x - 1,
-        y = animation.enemy.move.y
-      }
+      nudge("enemy", -1)
     elseif animation.frame > 83 and animation.frame <= 86 then
-      animation.enemy.move = {
-        x = animation.enemy.move.x + 1,
-        y = animation.enemy.move.y
-      }
+      nudge("enemy", 1)
     elseif animation.frame > 116 and animation.frame <= 146 then
       animation.friendly.size = {
         x = 8 + 8 * ((30 - (animation.frame - 116)) / 15),
@@ -275,6 +263,13 @@ function animate()
     pos = spritepos(animation.enemy.sprite)
     sspr(pos.x * 8, pos.y * 8, 8, 8, animation.enemy.move.x, animation.enemy.move.y, animation.enemy.size.x, animation.enemy.size.y)
   end
+end
+
+function nudge(alignment, direction)
+  animation[alignment].move = {
+    x = animation[alignment].move.x + direction,
+    y = animation[alignment].move.y
+  }
 end
 
 function showstats(x, y)

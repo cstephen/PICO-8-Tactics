@@ -10,14 +10,10 @@ This project is still very much in its infancy. I've been focusing on getting th
 - The ability to determine possible attack targets given a minimum and maximum attack range.
 - A battle animation sequence showing each unit's stats.
 
-It's not much to look at yet, but I promise to add GIFs of my progress. Here are a couple:
+Here are how things look so far:
 
-**Explore possible moves (blue) while wrapping around other units**
-
-![Exploring Moves](http://i.imgur.com/YKnwr1M.gif)
-
-**Find attack options (yellow) and play battle animation**
-
-![Battle Animation](http://i.imgur.com/3OltJrR.gif)
+![Moving and Fighting](http://i.imgur.com/O39mhb0.gif)
+*Explore possible moves (blue) find possible
+attacks (yellow) and initiate battle.*
 
 I've written about some of the challenges I've encountered at [my game development blog](http://www.craigstephenson.us/blog/category/game-development/). Stay tuned for more!

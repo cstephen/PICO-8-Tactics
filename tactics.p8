@@ -204,12 +204,8 @@ end
 
 function selectdraw()
   spr(255, select.y * 8, select.x * 8)
-  if fg[select.x][select.y].sprite != 0 then
-    unitpos = {
-      x = select.x,
-      y = select.y
-    }
 
+  if fg[select.x][select.y].sprite != 0 then
     screen = {
       pos = {
         x = 100,
@@ -218,7 +214,7 @@ function selectdraw()
       width = 28
     }
 
-    showstats(unitpos, screen)
+    showstats(fg[select.x][select.y], screen)
   end
 end
 
@@ -261,16 +257,16 @@ function animate()
     elseif animation.frame > 116 and animation.frame <= 146 then
       zoom(116, -1)
     elseif animation.frame > 146 then
-      if fg[friendly.x][friendly.y].hp == 0 then
+      if friendly.hp == 0 then
         die(friendly)
       else
-        fg[friendly.x][friendly.y].sprite = animation.friendly.sprite
+        friendly.sprite = animation.friendly.sprite
       end
 
-      if fg[enemy.x][enemy.y].hp == 0 then
+      if enemy.hp == 0 then
         die(enemy)
       else
-        fg[enemy.x][enemy.y].sprite = animation.enemy.sprite
+        enemy.sprite = animation.enemy.sprite
       end
 
       animation = nil
@@ -324,27 +320,26 @@ end
 
 function damage(alignment)
   if alignment == "friendly"
-  and fg[enemy.x][enemy.y].hp > 0 then
-    fg[friendly.x][friendly.y].hp -= fg[enemy.x][enemy.y].might / 3
-    if fg[friendly.x][friendly.y].hp < 0 then
-      fg[friendly.x][friendly.y].hp = 0
+  and enemy.hp > 0 then
+    friendly.hp -= enemy.might / 3
+    if friendly.hp < 0 then
+      friendly.hp = 0
     end
   elseif alignment == "enemy"
-  and fg[friendly.x][friendly.y].hp > 0 then
-    fg[enemy.x][enemy.y].hp -= fg[friendly.x][friendly.y].might / 3
-    if fg[enemy.x][enemy.y].hp < 0 then
-      fg[enemy.x][enemy.y].hp = 0
+  and friendly.hp > 0 then
+    enemy.hp -= friendly.might / 3
+    if enemy.hp < 0 then
+      enemy.hp = 0
     end
   end
 end
 
-function die(unitpos)
-  fg[unitpos.x][unitpos.y] = {sprite = 0}
-  typemask[unitpos.x][unitpos.y] = "neutral"
+function die(unit)
+  typemask[unit.x][unit.y] = "neutral"
+  unit = {sprite = 0}
 end
 
-function showstats(unitpos, screen)
-  unit = fg[unitpos.x][unitpos.y]
+function showstats(unit, screen)
   print(unit.name, screen.pos.x, screen.pos.y, colors[unit.alignment])
   print("lvl. 1", screen.pos.x, screen.pos.y + 8, colors[unit.alignment])
   health = unit.hp / unit.maxhp * screen.width
@@ -360,54 +355,56 @@ function unit(base, alignment)
 end
 
 function movespaces()
-  chosen.x = select.x
-  chosen.y = select.y
+  friendly = alias(fg[select.x][select.y])
+
   moving = true
-  explorerange(chosen.x, chosen.y, fg[chosen.x][chosen.y].speed, 254, "neutral", true)
-  valid[chosen.x][chosen.y] = nil
+  explorerange(friendly.x, friendly.y, friendly.speed, 254, "neutral", true)
+  valid[friendly.x][friendly.y] = nil
 end
 
 function move()
-  place(select.x, select.y, fg[chosen.x][chosen.y])
-  unplace(chosen.x, chosen.y)
+  place(select.x, select.y, friendly)
+  unplace(friendly.x, friendly.y)
+
+  friendly = alias(fg[select.x][select.y])
+
   gridclear(bg, {sprite = 0})
   moving = false
 end
 
+function alias(unit)
+  handle = fg[select.x][select.y]
+  handle.x = select.x
+  handle.y = select.y
+  return handle
+end
+
 function attackspaces()
-  goodspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmax, 253, "evil", false)
-  badspaces = explorerange(select.x, select.y, fg[select.x][select.y].attackmin, 0, "evil", false)
+  goodspaces = explorerange(friendly.x, friendly.y, friendly.attackmax, 253, "evil", false)
+  badspaces = explorerange(friendly.x, friendly.y, friendly.attackmin, 0, "evil", false)
   if goodspaces - badspaces > 0 then
     attacking = true
   end
-
-  friendly = {
-    x = select.x,
-    y = select.y
-  }
 end
 
 function attack()
+  enemy = alias(fg[select.x][select.y])
+
   gridclear(bg, {sprite = 0})
   attacking = false
-
-  enemy = {
-    x = select.x,
-    y = select.y
-  }
 
   animation = {
     frame = 0,
     friendly = {
-      sprite = fg[friendly.x][friendly.y].sprite
+      sprite = friendly.sprite
     },
     enemy = {
-      sprite = fg[enemy.x][enemy.y].sprite
+      sprite = enemy.sprite
     }
   }
 
-  fg[friendly.x][friendly.y].sprite = 0
-  fg[enemy.x][enemy.y].sprite = 0
+  friendly.sprite = 0
+  enemy.sprite = 0
 end
 
 function place(x, y, unit)

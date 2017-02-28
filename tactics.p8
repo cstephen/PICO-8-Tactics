@@ -155,7 +155,7 @@ function _draw()
 end
 
 function copy(src)
-  dest = {}
+  local dest = {}
   dest.name = src.name
   dest.sprite = src.sprite
   dest.speed = src.speed
@@ -171,7 +171,7 @@ function copy(src)
 end
 
 function gridinit()
-  grid = {}
+  local grid = {}
   for i=0, gridsize.x do
     grid[i] = {}
   end
@@ -189,14 +189,14 @@ end
 function griddraw(grid)
   for i=0, gridsize.x do
     for j=0, gridsize.y do
-      pos = spritepos(grid[i][j].sprite)
+      local pos = spritepos(grid[i][j].sprite)
       sspr(pos.x * 8, pos.y * 8, 8, 8, j * 8, i * 8)
     end
   end
 end
 
 function spritepos(s)
-  sprite = {}
+  local sprite = {}
   sprite.x = s % 16
   sprite.y = flr(s / 16)
   return sprite
@@ -206,7 +206,7 @@ function selectdraw()
   spr(255, select.y * 8, select.x * 8)
 
   if fg[select.x][select.y].sprite != 0 then
-    screen = {
+    local screen = {
       pos = {
         x = 100,
         y = 0
@@ -223,7 +223,7 @@ function animate()
     animation.frame += 1
 
     if animation.frame > 30 and animation.frame < 116 then
-      friendlystats = {
+      local friendlystats = {
         pos = {
           x = 16,
           y = 75
@@ -232,7 +232,7 @@ function animate()
       }
       showstats(friendly, friendlystats)
 
-      enemystats = {
+      local enemystats = {
         pos = {
           x = 82,
           y = 75
@@ -273,7 +273,7 @@ function animate()
       return
     end
 
-    pos = spritepos(animation.friendly.sprite)
+    local pos = spritepos(animation.friendly.sprite)
     sspr(pos.x * 8, pos.y * 8, 8, 8, animation.friendly.move.x, animation.friendly.move.y, animation.friendly.size.x, animation.friendly.size.y)
 
     pos = spritepos(animation.enemy.sprite)
@@ -282,13 +282,15 @@ function animate()
 end
 
 function zoom(baseframe, direction)
+  local progress
+
   if direction > 0 then
     progress = animation.frame - baseframe
   else
     progress = 30 - (animation.frame - baseframe)
   end
 
-  scale = 8 + 8 * (progress / 15)
+  local scale = 8 + 8 * (progress / 15)
 
   animation.friendly.size = {
     x = scale,
@@ -342,13 +344,14 @@ end
 function showstats(unit, screen)
   print(unit.name, screen.pos.x, screen.pos.y, colors[unit.alignment])
   print("lvl. 1", screen.pos.x, screen.pos.y + 8, colors[unit.alignment])
-  health = unit.hp / unit.maxhp * screen.width
+
+  local health = unit.hp / unit.maxhp * screen.width
   rect(screen.pos.x, screen.pos.y + 16, screen.pos.x + health, screen.pos.y + 17, colors[unit.alignment])
   rect(screen.pos.x + health, screen.pos.y + 16, screen.pos.x + screen.width, screen.pos.y + 17, 2)
 end
 
 function unit(base, alignment)
-  new = copy(base)
+  local new = copy(base)
   new.alignment = alignment
   new.sprite = sprites[base.name][alignment]
   return new
@@ -373,15 +376,15 @@ function move()
 end
 
 function alias(unit)
-  handle = fg[select.x][select.y]
+  local handle = fg[select.x][select.y]
   handle.x = select.x
   handle.y = select.y
   return handle
 end
 
 function attackspaces()
-  goodspaces = explorerange(friendly.x, friendly.y, friendly.attackmax, 253, "evil", false)
-  badspaces = explorerange(friendly.x, friendly.y, friendly.attackmin, 0, "evil", false)
+  local goodspaces = explorerange(friendly.x, friendly.y, friendly.attackmax, 253, "evil", false)
+  local badspaces = explorerange(friendly.x, friendly.y, friendly.attackmin, 0, "evil", false)
   if goodspaces - badspaces > 0 then
     attacking = true
   end

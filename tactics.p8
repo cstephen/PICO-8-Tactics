@@ -444,29 +444,29 @@ function crawlspace(x, y, steps, sprite, alignment, obstacles)
     spaces += 1
   end
 
-  if validspace(x - 1, y, steps, block) then
+  if validspace(x - 1, y, steps, obstacles) then
     crawlspace(x - 1, y, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validspace(x + 1, y, steps, block)then
+  if validspace(x + 1, y, steps, obstacles) then
     crawlspace(x + 1, y, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validspace(x, y - 1, steps, block) then
+  if validspace(x, y - 1, steps, obstacles) then
     crawlspace(x, y - 1, steps - 1, sprite, alignment, obstacles)
   end
 
-  if validspace(x, y + 1, steps, block) then
+  if validspace(x, y + 1, steps, obstacles) then
     crawlspace(x, y + 1, steps - 1, sprite, alignment, obstacles)
   end
 end
 
-function validspace(x, y, steps, block)
+function validspace(x, y, steps, obstacles)
   if x < 0 or x >= 16 or y < 0 or y >= 16 then
     return false
   end
 
-  if block == true and typemask[x][y] != "neutral" then
+  if obstacles == true and typemask[x][y] != "neutral" then
     return false
   end
 

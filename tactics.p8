@@ -2,14 +2,9 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 select = {x = 0, y = 0}
-chosen = {}
 moving = false
 attacking = false
 gridsize = {x = 16, y = 16}
-
-levels = {}
-levels[1] = 0
-levels[2] = 50
 
 colors = {
   good = 11,

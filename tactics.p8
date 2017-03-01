@@ -264,10 +264,14 @@ function animate()
       damage("enemy")
       nudge("friendly", -1)
     elseif animation.frame > 81 and animation.frame <= 83 then
-      nudge("enemy", -1)
+      if animation.counterattack == true then
+        nudge("enemy", -1)
+      end
     elseif animation.frame > 83 and animation.frame <= 86 then
-      damage("friendly")
-      nudge("enemy", 1)
+      if animation.counterattack == true then
+        damage("friendly")
+        nudge("enemy", 1)
+      end
     elseif animation.frame > 116 and animation.frame <= 146 then
       zoom(116, -1)
     elseif animation.frame > 146 then
@@ -424,6 +428,16 @@ function attack()
     }
   }
 
+  explorerange(enemy.x, enemy.y, enemy.attackmax, 253, "good", false)
+  explorerange(enemy.x, enemy.y, enemy.attackmin, 0, "good", false)
+
+  if bg[friendly.x][friendly.y].sprite == 253 then
+    animation.counterattack = true
+  else
+    animation.counterattack = false
+  end
+
+  gridclear(bg, {sprite = 0})
   friendly.sprite = 0
   enemy.sprite = 0
 end

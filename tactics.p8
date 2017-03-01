@@ -111,37 +111,52 @@ function _update()
   and animation == nil then
     select.y -= 1
   end
+
   if btnp(1)
   and select.y < 15
   and animation == nil then
     select.y += 1
   end
+
   if btnp(2)
   and select.x > 0
   and animation == nil then
     select.x -= 1
   end
+
   if btnp(3)
   and select.x < 15
   and animation == nil then
     select.x += 1
   end
+
   if btnp(4) then
     if moving == false
     and attacking == false
     and typemask[select.x][select.y] == "good" then
-      movespaces();
+      movespaces(select.x, select.y)
     elseif moving == true
     and attacking == false
     and valid[select.x] != nil
     and valid[select.x][select.y] != nil
     and typemask[select.x][select.y] == "neutral" then
-      move()
+      move(select.x, select.y)
       attackspaces()
     elseif moving == false
     and attacking == true
     and bg[select.x][select.y].sprite == 253 then
       attack()
+    end
+  end
+
+  if btnp(5) then
+    if moving == false
+    and attacking == true then
+      gridclear(bg, {sprite = 0})
+      move(lastspace.x, lastspace.y)
+      movespaces(friendly.x, friendly.y)
+      moving = true
+      attacking = false
     end
   end
 end
@@ -357,28 +372,32 @@ function unit(base, alignment)
   return new
 end
 
-function movespaces()
-  friendly = alias(fg[select.x][select.y])
-
+function movespaces(x, y)
+  friendly = alias(x, y)
   moving = true
   explorerange(friendly.x, friendly.y, friendly.speed, 254, "neutral", true)
   valid[friendly.x][friendly.y] = nil
 end
 
-function move()
-  place(select.x, select.y, friendly)
+function move(x, y)
+  lastspace = {
+    x = friendly.x,
+    y = friendly.y
+  }
+
+  place(x, y, friendly)
   unplace(friendly.x, friendly.y)
 
-  friendly = alias(fg[select.x][select.y])
+  friendly = alias(x, y)
 
   gridclear(bg, {sprite = 0})
   moving = false
 end
 
-function alias(unit)
-  local handle = fg[select.x][select.y]
-  handle.x = select.x
-  handle.y = select.y
+function alias(x, y)
+  local handle = fg[x][y]
+  handle.x = x
+  handle.y = y
   return handle
 end
 
@@ -391,7 +410,7 @@ function attackspaces()
 end
 
 function attack()
-  enemy = alias(fg[select.x][select.y])
+  enemy = alias(select.x, select.y)
 
   gridclear(bg, {sprite = 0})
   attacking = false

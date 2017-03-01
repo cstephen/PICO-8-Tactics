@@ -145,7 +145,11 @@ function _update()
   end
 
   if btnp(5) then
-    if moving == false
+    if moving == true
+    and attacking == false then
+      gridclear(bg, {sprite = 0})
+      moving = false
+    elseif moving == false
     and attacking == true then
       gridclear(bg, {sprite = 0})
       move(lastspace.x, lastspace.y)

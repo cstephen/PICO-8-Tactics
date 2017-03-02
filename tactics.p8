@@ -378,7 +378,7 @@ end
 function movespaces(x, y)
   friendly = alias(x, y)
   moving = true
-  explorerange(friendly.x, friendly.y, friendly.speed, 254, "neutral", true)
+  explorerange(friendly.x, friendly.y, friendly.speed, 254, {"neutral", "good"}, {"evil"})
   valid[friendly.x][friendly.y] = nil
 end
 
@@ -405,8 +405,8 @@ function alias(x, y)
 end
 
 function attackspaces()
-  local goodspaces = explorerange(friendly.x, friendly.y, friendly.attackmax, 253, "evil", false)
-  local badspaces = explorerange(friendly.x, friendly.y, friendly.attackmin, 0, "evil", false)
+  local goodspaces = explorerange(friendly.x, friendly.y, friendly.attackmax, 253, {"evil"}, {})
+  local badspaces = explorerange(friendly.x, friendly.y, friendly.attackmin, 0, {"evil"}, {})
   if goodspaces - badspaces > 0 then
     attacking = true
   end
@@ -428,8 +428,8 @@ function attack()
     }
   }
 
-  explorerange(enemy.x, enemy.y, enemy.attackmax, 253, "good", false)
-  explorerange(enemy.x, enemy.y, enemy.attackmin, 0, "good", false)
+  explorerange(enemy.x, enemy.y, enemy.attackmax, 253, {"good"}, {})
+  explorerange(enemy.x, enemy.y, enemy.attackmin, 0, {"good"}, {})
 
   if bg[friendly.x][friendly.y].sprite == 253 then
     animation.counterattack = true
@@ -471,9 +471,11 @@ function crawlspace(x, y, steps, sprite, alignment, obstacles)
     return
   end
 
-  if typemask[x][y] == alignment then
-    bg[x][y] = {sprite = sprite}
-    spaces += 1
+  for i=0, #alignment do
+    if typemask[x][y] == alignment[i] then
+      bg[x][y] = {sprite = sprite}
+      spaces += 1
+    end
   end
 
   if validspace(x - 1, y, steps, obstacles) then
@@ -498,8 +500,10 @@ function validspace(x, y, steps, obstacles)
     return false
   end
 
-  if obstacles == true and typemask[x][y] != "neutral" then
-    return false
+  for i=0, #obstacles do
+    if typemask[x][y] == obstacles[i] then
+      return false
+    end
   end
 
   if steps <= 0 then

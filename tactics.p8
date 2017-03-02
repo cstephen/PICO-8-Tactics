@@ -347,13 +347,13 @@ function damage(alignment)
   if alignment == "friendly"
   and enemy.hp > 0 then
     friendly.hp -= enemy.might / 3
-    if friendly.hp < 0 then
+    if friendly.hp < 1 then
       friendly.hp = 0
     end
   elseif alignment == "enemy"
   and friendly.hp > 0 then
     enemy.hp -= friendly.might / 3
-    if enemy.hp < 0 then
+    if enemy.hp < 1 then
       enemy.hp = 0
     end
   end

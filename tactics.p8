@@ -133,10 +133,12 @@ function _update()
     elseif moving == true
     and attacking == false
     and valid[select.x] != nil
-    and valid[select.x][select.y] != nil
-    and typemask[select.x][select.y] == "neutral" then
-      move(select.x, select.y)
-      attackspaces()
+    and valid[select.x][select.y] != nil then
+      if typemask[select.x][select.y] == "neutral"
+      or (select.x == friendly.x and select.y == friendly.y) then
+        move(select.x, select.y)
+        attackspaces()
+      end
     elseif moving == false
     and attacking == true then
       if bg[select.x][select.y].sprite == 253 then
@@ -384,7 +386,6 @@ function movespaces(x, y)
   friendly = alias(x, y)
   moving = true
   explorerange(friendly.x, friendly.y, friendly.speed, 254, {"neutral", "good"}, {"evil"})
-  valid[friendly.x][friendly.y] = nil
 end
 
 function move(x, y)
@@ -394,7 +395,10 @@ function move(x, y)
   }
 
   place(x, y, friendly)
-  unplace(friendly.x, friendly.y)
+
+  if x != friendly.x or y != friendly.y then
+    unplace(friendly.x, friendly.y)
+  end
 
   friendly = alias(x, y)
 

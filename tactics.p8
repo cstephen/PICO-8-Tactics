@@ -138,9 +138,14 @@ function _update()
       move(select.x, select.y)
       attackspaces()
     elseif moving == false
-    and attacking == true
-    and bg[select.x][select.y].sprite == 253 then
-      attack()
+    and attacking == true then
+      if bg[select.x][select.y].sprite == 253 then
+        attack()
+      elseif select.x == friendly.x and select.y == friendly.y then
+        gridclear(bg, {sprite = 0})
+        moving = false
+        attacking = false
+      end
     end
   end
 

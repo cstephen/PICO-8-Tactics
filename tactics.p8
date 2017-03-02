@@ -452,14 +452,14 @@ function unplace(x, y)
   typemask[x][y] = "neutral"
 end
 
-function explorerange(x, y, steps, sprite, alignment, obstacles)
+function explorerange(x, y, steps, sprite, alignments, obstacles)
   valid = {}
   spaces = 0
-  crawlspace(x, y, steps, sprite, alignment, obstacles)
+  crawlspace(x, y, steps, sprite, alignments, obstacles)
   return spaces
 end
 
-function crawlspace(x, y, steps, sprite, alignment, obstacles)
+function crawlspace(x, y, steps, sprite, alignments, obstacles)
   if valid[x] == nil then
     valid[x] = {}
   end
@@ -471,27 +471,27 @@ function crawlspace(x, y, steps, sprite, alignment, obstacles)
     return
   end
 
-  for i=0, #alignment do
-    if typemask[x][y] == alignment[i] then
+  for alignment in all(alignments) do
+    if typemask[x][y] == alignment then
       bg[x][y] = {sprite = sprite}
       spaces += 1
     end
   end
 
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignment, obstacles)
+    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignment, obstacles)
+    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignment, obstacles)
+    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignment, obstacles)
+    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles)
   end
 end
 
@@ -500,8 +500,8 @@ function validspace(x, y, steps, obstacles)
     return false
   end
 
-  for i=0, #obstacles do
-    if typemask[x][y] == obstacles[i] then
+  for obstacle in all(obstacles) do
+    if typemask[x][y] == obstacle then
       return false
     end
   end

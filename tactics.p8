@@ -6,6 +6,11 @@ moving = false
 attacking = false
 gridsize = {x = 16, y = 16}
 
+mapcorner = {
+  x = 18,
+  y = 0
+}
+
 colors = {
   good = 11,
   evil = 14
@@ -169,7 +174,7 @@ end
 
 function _draw()
   cls()
-  map(18, 0, 0, 0, 16, 16)
+  map(mapcorner.x, mapcorner.y, 0, 0, 16, 16)
   griddraw(bg)
   griddraw(fg)
   selectdraw()

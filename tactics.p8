@@ -169,7 +169,7 @@ end
 
 function _draw()
   cls()
-  map(0, 0, 0, 0, 16, 16)
+  map(18, 0, 0, 0, 16, 16)
   griddraw(bg)
   griddraw(fg)
   selectdraw()

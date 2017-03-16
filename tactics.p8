@@ -205,6 +205,11 @@ function copy(src)
   return dest
 end
 
+function statprint(text, x, y, color, width)
+  rectfill(x, y, x + width, y + 8, 0)
+  print(text, x + 2, y + 2, color)
+end
+
 function gridinit()
   local grid = {}
   for i=0, gridsize.x do
@@ -269,9 +274,9 @@ function selectdraw()
     local screen = {
       pos = {
         x = 100,
-        y = 0
+        y = 1
       },
-      width = 28
+      width = 26
     }
 
     showstats(fg[select.x][select.y], screen)
@@ -286,18 +291,18 @@ function animate()
       local friendlystats = {
         pos = {
           x = 16,
-          y = 75
+          y = 69
         },
-        width = 29
+        width = 31
       }
       showstats(friendly, friendlystats)
 
       local enemystats = {
         pos = {
           x = 82,
-          y = 75
+          y = 69
         },
-        width = 29
+        width = 31
       }
       showstats(enemy, enemystats)
     end
@@ -362,8 +367,8 @@ function zoom(baseframe, direction)
   }
 
   animation.friendly.move = {
-    x = (friendly.y * 8 + (((28 - friendly.y * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
-    y = (friendly.x * 8 + (((45 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
+    x = (friendly.y * 8 + (((29 - friendly.y * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
+    y = (friendly.x * 8 + (((40 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
   }
 
   animation.enemy.size = {
@@ -372,8 +377,8 @@ function zoom(baseframe, direction)
   }
 
   animation.enemy.move = {
-    x = (enemy.y * 8 + (((94 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
-    y = (enemy.x * 8 + (((45 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
+    x = (enemy.y * 8 + (((95 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
+    y = (enemy.x * 8 + (((40 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
   }
 end
 
@@ -406,12 +411,9 @@ function die(unit)
 end
 
 function showstats(unit, screen)
-  print(unit.name, screen.pos.x, screen.pos.y, colors[unit.alignment])
-  print("lvl. 1", screen.pos.x, screen.pos.y + 8, colors[unit.alignment])
-
-  local health = unit.hp / unit.maxhp * screen.width
-  rect(screen.pos.x, screen.pos.y + 16, screen.pos.x + health, screen.pos.y + 17, colors[unit.alignment])
-  rect(screen.pos.x + health, screen.pos.y + 16, screen.pos.x + screen.width, screen.pos.y + 17, 2)
+  statprint(unit.name, screen.pos.x, screen.pos.y, colors[unit.alignment], screen.width)
+  statprint("lvl: 1", screen.pos.x, screen.pos.y + 8, colors[unit.alignment], screen.width)
+  statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, colors[unit.alignment], screen.width)
 end
 
 function unit(base, alignment)

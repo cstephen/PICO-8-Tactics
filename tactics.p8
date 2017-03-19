@@ -1,10 +1,10 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
-select = {x = 0, y = 0}
+select = {x = 18, y = 0}
 moving = false
 attacking = false
-gridsize = {x = 16, y = 16}
+gridsize = {x = 128, y = 32}
 
 mapcorner = {
   x = 18,
@@ -111,42 +111,58 @@ function _init()
   gridclear(fg, {sprite = 0})
   gridclear(typemask, "neutral")
 
-  place(0, 0, unit(knight, "good"))
-  fg[0][0].hp = 7
+  place(18, 0, unit(knight, "good"))
+  fg[0][18].hp = 7
 
-  place(0, 1, unit(dwarf, "good"))
-  fg[0][1].hp = 2
+  place(19, 0, unit(dwarf, "good"))
+  fg[0][19].hp = 2
 
-  place(1, 4, unit(dwarf, "evil"))
-  fg[1][4].hp = 7
+  place(22, 1, unit(dwarf, "evil"))
+  fg[1][22].hp = 7
 
-  place(0, 3, unit(archer, "good"))
-  fg[0][3].hp = 5
+  place(21, 0, unit(archer, "good"))
+  fg[0][21].hp = 5
 end
 
 function _update()
-  if btnp(0)
-  and select.y > 0
-  and animation == nil then
-    select.y -= 1
+  if btnp(0) then
+    if select.x > 0
+    and animation == nil then
+      select.x -= 1
+      if select.x - mapcorner.x < 0 then
+        mapcorner.x -= 1
+      end
+    end
   end
 
-  if btnp(1)
-  and select.y < 15
-  and animation == nil then
-    select.y += 1
+  if btnp(1) then
+    if select.x < 127
+    and animation == nil then
+      select.x += 1
+      if select.x - mapcorner.x > 15 then
+        mapcorner.x += 1
+      end
+    end
   end
 
-  if btnp(2)
-  and select.x > 0
-  and animation == nil then
-    select.x -= 1
+  if btnp(2) then
+    if select.y > 0
+    and animation == nil then
+      select.y -= 1
+      if select.y - mapcorner.y < 0 then
+        mapcorner.y -= 1
+      end
+    end
   end
 
-  if btnp(3)
-  and select.x < 15
-  and animation == nil then
-    select.x += 1
+  if btnp(3) then
+    if select.y < 31
+    and animation == nil then
+      select.y += 1
+      if select.y - mapcorner.y > 15 then
+        mapcorner.y += 1
+      end
+    end
   end
 
   if btnp(4) then
@@ -239,10 +255,10 @@ function gridclear(grid, value)
 end
 
 function griddraw(grid)
-  for i=0, gridsize.x do
-    for j=0, gridsize.y do
+  for i=mapcorner.x, mapcorner.x + 16 do
+    for j=mapcorner.y, mapcorner.y + 16 do
       local pos = spritepos(grid[i][j].sprite)
-      sspr(pos.x * 8, pos.y * 8, 8, 8, j * 8, i * 8)
+      sspr(pos.x * 8, pos.y * 8, 8, 8, (i - mapcorner.x) * 8, (j - mapcorner.y) * 8)
     end
   end
 end
@@ -250,8 +266,8 @@ end
 function mapanimate()
   local alternate = 20
 
-  for i=mapcorner.x, mapcorner.x + gridsize.x do
-    for j=mapcorner.y, mapcorner.y + gridsize.y do
+  for i=mapcorner.x, mapcorner.x + 16 do
+    for j=mapcorner.y, mapcorner.y + 16 do
       if mapanimatecounter == alternate then
         for mapanimation in all(mapanimations) do
           for k=1, #mapanimation do
@@ -280,7 +296,12 @@ function spritepos(s)
 end
 
 function selectdraw()
-  spr(255, select.y * 8, select.x * 8)
+  local screenpos = {
+    x = select.x - mapcorner.x,
+    y = select.y - mapcorner.y
+  }
+
+  spr(255, screenpos.x * 8, screenpos.y * 8)
 
   if fg[select.x][select.y].sprite != 0 then
     local screen = {

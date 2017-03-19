@@ -400,8 +400,8 @@ function zoom(baseframe, direction)
   }
 
   animation.friendly.move = {
-    x = (friendly.y * 8 + (((29 - friendly.y * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
-    y = (friendly.x * 8 + (((40 - friendly.x * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
+    x = ((friendly.x - mapcorner.x) * 8 + (((29 - (friendly.x - mapcorner.x) * 8) / 30) * progress)) - animation.friendly.size.x / 2 + 4,
+    y = ((friendly.y - mapcorner.y) * 8 + (((40 - (friendly.y - mapcorner.y) * 8) / 30) * progress)) - animation.friendly.size.y / 2 + 4
   }
 
   animation.enemy.size = {
@@ -410,8 +410,8 @@ function zoom(baseframe, direction)
   }
 
   animation.enemy.move = {
-    x = (enemy.y * 8 + (((95 - enemy.y * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
-    y = (enemy.x * 8 + (((40 - enemy.x * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
+    x = ((enemy.x - mapcorner.x) * 8 + (((95 - (enemy.x - mapcorner.x) * 8) / 30) * progress)) - animation.enemy.size.x / 2 + 4,
+    y = ((enemy.y - mapcorner.y) * 8 + (((40 - (enemy.y - mapcorner.y) * 8) / 30) * progress)) - animation.enemy.size.y / 2 + 4
   }
 end
 
@@ -579,7 +579,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles)
 end
 
 function validspace(x, y, steps, obstacles)
-  if x < 0 or x >= 16 or y < 0 or y >= 16 then
+  if x < 0 or x >= 128 or y < 0 or y >= 32 then
     return false
   end
 

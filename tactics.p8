@@ -132,7 +132,7 @@ function _update()
       select.x -= 1
       if select.x - mapcorner.x < 0 then
         mapcorner.x -= 1
-        mapsliceanimate(1, nil)
+        mapsliceanimate(0, nil)
       end
     end
   end
@@ -143,7 +143,7 @@ function _update()
       select.x += 1
       if select.x - mapcorner.x > 15 then
         mapcorner.x += 1
-        mapsliceanimate(16, nil)
+        mapsliceanimate(15, nil)
       end
     end
   end
@@ -154,7 +154,7 @@ function _update()
       select.y -= 1
       if select.y - mapcorner.y < 0 then
         mapcorner.y -= 1
-        mapsliceanimate(nil, 1)
+        mapsliceanimate(nil, 0)
       end
     end
   end
@@ -165,7 +165,7 @@ function _update()
       select.y += 1
       if select.y - mapcorner.y > 15 then
         mapcorner.y += 1
-        mapsliceanimate(nil, 16)
+        mapsliceanimate(nil, 15)
       end
     end
   end
@@ -293,24 +293,24 @@ function mapanimate()
 end
 
 function mapsliceanimate(x, y)
-  for idx=1, 16 do
+  for idx=0, 15 do
     for mapanimation in all(mapanimations) do
       for k=1, #mapanimation do
         local sprite
 
         if x != nil then
-          sprite = mget(x, idx)
+          sprite = mget(mapcorner.x + x, mapcorner.y + idx)
         elseif y != nil then
-          sprite = mget(idx, y)
+          sprite = mget(mapcorner.x + idx, mapcorner.y + y)
         end
 
         if sprite == mapanimation[#mapanimation - (k - 1)]
-        and mapanimatecounter >= (#mapanimation - (k - 1)) * alternate
+        and mapanimatecounter >= (k - 1) * alternate
         and mapanimatecounter <= k * alternate then
           if x != nil then
-            mset(x, idx, mapanimation[k])
+            mset(mapcorner.x + x, mapcorner.y + idx, mapanimation[k])
           elseif y != nil then
-            mset(idx, y, mapanimation[k])
+            mset(mapcorner.x + idx, mapcorner.y + y, mapanimation[k])
           end
         end
       end

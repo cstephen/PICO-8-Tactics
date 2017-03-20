@@ -268,10 +268,11 @@ function mapanimate()
 
   for i=mapcorner.x, mapcorner.x + 16 do
     for j=mapcorner.y, mapcorner.y + 16 do
-      if mapanimatecounter == alternate then
+      if mapanimatecounter % alternate == 0 then
         for mapanimation in all(mapanimations) do
           for k=1, #mapanimation do
-            if mget(i, j) == mapanimation[k] then
+            if mget(i, j) == mapanimation[k]
+            and mapanimatecounter == k * alternate then
               mset(i, j, mapanimation[k % #mapanimation + 1])
               break
             end
@@ -281,7 +282,7 @@ function mapanimate()
     end
   end
 
-  if mapanimatecounter == alternate then
+  if mapanimatecounter == alternate * 2 then
     mapanimatecounter = 0
   end
 

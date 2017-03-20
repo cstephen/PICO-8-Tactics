@@ -5,6 +5,7 @@ select = {x = 18, y = 0}
 moving = false
 attacking = false
 gridsize = {x = 128, y = 32}
+alternate = 20
 
 mapcorner = {
   x = 18,
@@ -131,6 +132,7 @@ function _update()
       select.x -= 1
       if select.x - mapcorner.x < 0 then
         mapcorner.x -= 1
+        mapsliceanimate(1, nil)
       end
     end
   end
@@ -141,6 +143,7 @@ function _update()
       select.x += 1
       if select.x - mapcorner.x > 15 then
         mapcorner.x += 1
+        mapsliceanimate(16, nil)
       end
     end
   end
@@ -151,6 +154,7 @@ function _update()
       select.y -= 1
       if select.y - mapcorner.y < 0 then
         mapcorner.y -= 1
+        mapsliceanimate(nil, 1)
       end
     end
   end
@@ -161,6 +165,7 @@ function _update()
       select.y += 1
       if select.y - mapcorner.y > 15 then
         mapcorner.y += 1
+        mapsliceanimate(nil, 16)
       end
     end
   end
@@ -264,8 +269,6 @@ function griddraw(grid)
 end
 
 function mapanimate()
-  local alternate = 20
-
   for i=mapcorner.x, mapcorner.x + 16 do
     for j=mapcorner.y, mapcorner.y + 16 do
       if mapanimatecounter % alternate == 0 then
@@ -287,6 +290,32 @@ function mapanimate()
   end
 
   mapanimatecounter += 1
+end
+
+function mapsliceanimate(x, y)
+  for idx=1, 16 do
+    for mapanimation in all(mapanimations) do
+      for k=1, #mapanimation do
+        local sprite
+
+        if x != nil then
+          sprite = mget(x, idx)
+        elseif y != nil then
+          sprite = mget(idx, y)
+        end
+
+        if sprite == mapanimation[#mapanimation - (k - 1)]
+        and mapanimatecounter >= (#mapanimation - (k - 1)) * alternate
+        and mapanimatecounter <= k * alternate then
+          if x != nil then
+            mset(x, idx, mapanimation[k])
+          elseif y != nil then
+            mset(idx, y, mapanimation[k])
+          end
+        end
+      end
+    end
+  end
 end
 
 function spritepos(s)

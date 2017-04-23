@@ -6,6 +6,7 @@ moving = false
 attacking = false
 gridsize = {x = 128, y = 32}
 alternate = 20
+moveanimation = nil
 
 mapcorner = {
   x = 18,
@@ -106,10 +107,12 @@ archer = {
 function _init()
   bg = gridinit()
   fg = gridinit()
+  breadcrumbs = gridinit()
   typemask = gridinit()
 
   gridclear(bg, {sprite = 0})
   gridclear(fg, {sprite = 0})
+  gridclear(breadcrumbs, {})
   gridclear(typemask, "neutral")
 
   place(18, 0, unit(knight, "good"))
@@ -182,7 +185,6 @@ function _update()
       if typemask[select.x][select.y] == "neutral"
       or (select.x == friendly.x and select.y == friendly.y) then
         move(select.x, select.y)
-        attackspaces()
       end
     elseif moving == false
     and attacking == true then
@@ -220,6 +222,7 @@ function _draw()
   griddraw(fg)
   selectdraw()
   animate()
+  moveanimate()
 end
 
 function copy(src)
@@ -235,6 +238,17 @@ function copy(src)
   dest.xp = src.xp
   dest.level = src.level
   dest.alignment = src.alignment
+  return dest
+end
+
+function copybreadcrumb(src)
+  local dest = {}
+  for i=1, #src do
+    dest[i] = {
+      x = src[i].x,
+      y = src[i].y
+    }
+  end
   return dest
 end
 
@@ -492,22 +506,74 @@ function movespaces(x, y)
   explorerange(friendly.x, friendly.y, friendly.speed, 254, {"neutral", "good"}, {"evil"})
 end
 
+function moveanimate()
+  if moveanimation != nil then
+    local currentcell = {
+      x = moveanimation.pixelpos.x / 8,
+      y = moveanimation.pixelpos.y / 8
+    }
+
+    if currentcell.x == moveanimation.begin.x
+    and currentcell.y == moveanimation.begin.y then
+      gridclear(bg, {sprite = 0})
+      unplace(friendly.x, friendly.y)
+    end
+
+    if moveanimateidx - 1 < #breadcrumbs[select.x][select.y] then
+      if currentcell.x == breadcrumbs[select.x][select.y][moveanimateidx].x
+      and currentcell.y == breadcrumbs[select.x][select.y][moveanimateidx].y then
+        previousspace = {
+          x = breadcrumbs[select.x][select.y][moveanimateidx].x,
+          y = breadcrumbs[select.x][select.y][moveanimateidx].y
+        }
+        moveanimateidx += 1
+      else
+        moveanimation.pixelpos.x += breadcrumbs[select.x][select.y][moveanimateidx].x - previousspace.x
+        moveanimation.pixelpos.y += breadcrumbs[select.x][select.y][moveanimateidx].y - previousspace.y
+      end
+
+      local movescreenpos = {
+        x = moveanimation.pixelpos.x - (mapcorner.x * 8),
+        y = moveanimation.pixelpos.y - (mapcorner.y * 8)
+      }
+
+      spr(moveanimation.sprite, movescreenpos.x, movescreenpos.y)
+    end
+
+    if currentcell.x == moveanimation.finish.x
+    and currentcell.y == moveanimation.finish.y then
+      place(moveanimation.finish.x, moveanimation.finish.y, friendly)
+      friendly = alias(moveanimation.finish.x, moveanimation.finish.y)
+      moving = false
+      moveanimation = nil
+      attackspaces()
+    end
+  end
+end
+
 function move(x, y)
   lastspace = {
     x = friendly.x,
     y = friendly.y
   }
 
-  place(x, y, friendly)
+  moveanimation = {
+    begin = {
+      x = friendly.x,
+      y = friendly.y
+    },
+    finish = {
+      x = x,
+      y = y
+    },
+    pixelpos = {
+      x = friendly.x * 8,
+      y = friendly.y * 8
+    },
+    sprite = friendly.sprite
+  }
 
-  if x != friendly.x or y != friendly.y then
-    unplace(friendly.x, friendly.y)
-  end
-
-  friendly = alias(x, y)
-
-  gridclear(bg, {sprite = 0})
-  moving = false
+  moveanimateidx = 1
 end
 
 function alias(x, y)
@@ -568,11 +634,11 @@ end
 function explorerange(x, y, steps, sprite, alignments, obstacles)
   valid = {}
   spaces = 0
-  crawlspace(x, y, steps, sprite, alignments, obstacles)
+  crawlspace(x, y, steps, sprite, alignments, obstacles, {})
   return spaces
 end
 
-function crawlspace(x, y, steps, sprite, alignments, obstacles)
+function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
   if valid[x] == nil then
     valid[x] = {}
   end
@@ -591,20 +657,27 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles)
     end
   end
 
+  add(breadcrumb, {
+    x = x,
+    y = y
+  })
+
+  breadcrumbs[x][y] = copybreadcrumb(breadcrumb)
+
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles)
+    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles)
+    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles)
+    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles)
+    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
   end
 end
 

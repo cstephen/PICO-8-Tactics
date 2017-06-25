@@ -173,7 +173,7 @@ function _update()
     end
   end
 
-  if btnp(4) then
+  if btnp(4) and moveanimation == nil then
     if moving == false
     and attacking == false
     and typemask[select.x][select.y] == "good" then

@@ -519,17 +519,17 @@ function moveanimate()
       unplace(friendly.x, friendly.y)
     end
 
-    if moveanimateidx - 1 < #breadcrumbs[select.x][select.y] then
-      if currentcell.x == breadcrumbs[select.x][select.y][moveanimateidx].x
-      and currentcell.y == breadcrumbs[select.x][select.y][moveanimateidx].y then
+    if moveanimateidx - 1 < #breadcrumbs[moveanimation.select.x][moveanimation.select.y] then
+      if currentcell.x == breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x
+      and currentcell.y == breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y then
         previousspace = {
-          x = breadcrumbs[select.x][select.y][moveanimateidx].x,
-          y = breadcrumbs[select.x][select.y][moveanimateidx].y
+          x = breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x,
+          y = breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y
         }
         moveanimateidx += 1
       else
-        moveanimation.pixelpos.x += breadcrumbs[select.x][select.y][moveanimateidx].x - previousspace.x
-        moveanimation.pixelpos.y += breadcrumbs[select.x][select.y][moveanimateidx].y - previousspace.y
+        moveanimation.pixelpos.x += breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x - previousspace.x
+        moveanimation.pixelpos.y += breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y - previousspace.y
       end
 
       local movescreenpos = {
@@ -558,6 +558,10 @@ function move(x, y)
   }
 
   moveanimation = {
+    select = {
+      x = select.x,
+      y = select.y
+    },
     begin = {
       x = friendly.x,
       y = friendly.y

@@ -508,42 +508,48 @@ end
 
 function moveanimate()
   if moveanimation != nil then
+    local select = moveanimation.select
+    local begin = moveanimation.begin
+    local finish = moveanimation.finish
+    local pixelpos = moveanimation.pixelpos
+    local sprite = moveanimation.sprite
+
     local currentcell = {
-      x = moveanimation.pixelpos.x / 8,
-      y = moveanimation.pixelpos.y / 8
+      x = pixelpos.x / 8,
+      y = pixelpos.y / 8
     }
 
-    if currentcell.x == moveanimation.begin.x
-    and currentcell.y == moveanimation.begin.y then
+    if currentcell.x == begin.x
+    and currentcell.y == begin.y then
       gridclear(bg, {sprite = 0})
       unplace(friendly.x, friendly.y)
     end
 
-    if moveanimateidx - 1 < #breadcrumbs[moveanimation.select.x][moveanimation.select.y] then
-      if currentcell.x == breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x
-      and currentcell.y == breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y then
+    if moveanimateidx - 1 < #breadcrumbs[select.x][select.y] then
+      if currentcell.x == breadcrumbs[select.x][select.y][moveanimateidx].x
+      and currentcell.y == breadcrumbs[select.x][select.y][moveanimateidx].y then
         previousspace = {
-          x = breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x,
-          y = breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y
+          x = breadcrumbs[select.x][select.y][moveanimateidx].x,
+          y = breadcrumbs[select.x][select.y][moveanimateidx].y
         }
         moveanimateidx += 1
       else
-        moveanimation.pixelpos.x += breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].x - previousspace.x
-        moveanimation.pixelpos.y += breadcrumbs[moveanimation.select.x][moveanimation.select.y][moveanimateidx].y - previousspace.y
+        pixelpos.x += breadcrumbs[select.x][select.y][moveanimateidx].x - previousspace.x
+        pixelpos.y += breadcrumbs[select.x][select.y][moveanimateidx].y - previousspace.y
       end
 
       local movescreenpos = {
-        x = moveanimation.pixelpos.x - (mapcorner.x * 8),
-        y = moveanimation.pixelpos.y - (mapcorner.y * 8)
+        x = pixelpos.x - (mapcorner.x * 8),
+        y = pixelpos.y - (mapcorner.y * 8)
       }
 
-      spr(moveanimation.sprite, movescreenpos.x, movescreenpos.y)
+      spr(sprite, movescreenpos.x, movescreenpos.y)
     end
 
-    if currentcell.x == moveanimation.finish.x
-    and currentcell.y == moveanimation.finish.y then
-      place(moveanimation.finish.x, moveanimation.finish.y, friendly)
-      friendly = alias(moveanimation.finish.x, moveanimation.finish.y)
+    if currentcell.x == finish.x
+    and currentcell.y == finish.y then
+      place(finish.x, finish.y, friendly)
+      friendly = alias(finish.x, finish.y)
       moving = false
       moveanimation = nil
       attackspaces()

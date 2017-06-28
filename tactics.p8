@@ -235,17 +235,6 @@ function copy(src)
   return dest
 end
 
-function copybreadcrumb(src)
-  local dest = {}
-  for i=1, #src do
-    dest[i] = {
-      x = src[i].x,
-      y = src[i].y
-    }
-  end
-  return dest
-end
-
 function statprint(text, x, y, color, width)
   rectfill(x, y, x + width, y + 8, 0)
   print(text, x + 2, y + 2, color)
@@ -671,22 +660,22 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
     y = y
   })
 
-  g_breadcrumbs[x][y] = copybreadcrumb(breadcrumb)
+  g_breadcrumbs[x][y] = copy(breadcrumb)
 
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
+    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
+    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
+    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copybreadcrumb(breadcrumb))
+    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
   end
 end
 

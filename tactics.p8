@@ -364,7 +364,12 @@ function animate()
   if animation != nil then
     animation.frame += 1
 
-    if animation.frame > 30 and animation.frame < 116 then
+    local frame = animation.frame
+    local counterattack = animation.counterattack
+    local localfriendly = animation.friendly
+    local localenemy = animation.enemy
+
+    if frame > 30 and frame < 116 then
       local friendlystats = {
         pos = {
           x = 16,
@@ -384,46 +389,46 @@ function animate()
       showstats(enemy, enemystats)
     end
 
-    if animation.frame <= 30 then
+    if frame <= 30 then
       zoom(0, 1)
-    elseif animation.frame > 60 and animation.frame <= 63 then
+    elseif frame > 60 and frame <= 63 then
       nudge("friendly", 1)
-    elseif animation.frame > 63 and animation.frame <= 66 then
+    elseif frame > 63 and frame <= 66 then
       damage("enemy")
       nudge("friendly", -1)
-    elseif animation.frame > 81 and animation.frame <= 83 then
-      if animation.counterattack == true then
+    elseif frame > 81 and frame <= 83 then
+      if counterattack == true then
         nudge("enemy", -1)
       end
-    elseif animation.frame > 83 and animation.frame <= 86 then
-      if animation.counterattack == true then
+    elseif frame > 83 and frame <= 86 then
+      if counterattack == true then
         damage("friendly")
         nudge("enemy", 1)
       end
-    elseif animation.frame > 116 and animation.frame <= 146 then
+    elseif frame > 116 and frame <= 146 then
       zoom(116, -1)
-    elseif animation.frame > 146 then
+    elseif frame > 146 then
       if friendly.hp == 0 then
         die(friendly)
       else
-        friendly.sprite = animation.friendly.sprite
+        friendly.sprite = localfriendly.sprite
       end
 
       if enemy.hp == 0 then
         die(enemy)
       else
-        enemy.sprite = animation.enemy.sprite
+        enemy.sprite = localenemy.sprite
       end
 
       animation = nil
       return
     end
 
-    local pos = spritepos(animation.friendly.sprite)
-    sspr(pos.x * 8, pos.y * 8, 8, 8, animation.friendly.move.x, animation.friendly.move.y, animation.friendly.size.x, animation.friendly.size.y)
+    local pos = spritepos(localfriendly.sprite)
+    sspr(pos.x * 8, pos.y * 8, 8, 8, localfriendly.move.x, localfriendly.move.y, localfriendly.size.x, localfriendly.size.y)
 
-    pos = spritepos(animation.enemy.sprite)
-    sspr(pos.x * 8, pos.y * 8, 8, 8, animation.enemy.move.x, animation.enemy.move.y, animation.enemy.size.x, animation.enemy.size.y)
+    pos = spritepos(localenemy.sprite)
+    sspr(pos.x * 8, pos.y * 8, 8, 8, localenemy.move.x, localenemy.move.y, localenemy.size.x, localenemy.size.y)
   end
 end
 

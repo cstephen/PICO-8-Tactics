@@ -229,17 +229,9 @@ end
 
 function copy(src)
   local dest = {}
-  dest.name = src.name
-  dest.sprite = src.sprite
-  dest.speed = src.speed
-  dest.attackmin = src.attackmin
-  dest.attackmax = src.attackmax
-  dest.might = src.might
-  dest.maxhp = src.maxhp
-  dest.hp = src.hp
-  dest.xp = src.xp
-  dest.level = src.level
-  dest.alignment = src.alignment
+  for key, value in pairs(src) do
+    dest[key] = value
+  end
   return dest
 end
 

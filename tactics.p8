@@ -508,6 +508,7 @@ end
 
 function moveanimate()
   if moveanimation != nil then
+    local segment = moveanimation.segment
     local select = moveanimation.select
     local begin = moveanimation.begin
     local finish = moveanimation.finish
@@ -525,17 +526,17 @@ function moveanimate()
       unplace(friendly.x, friendly.y)
     end
 
-    if moveanimateidx - 1 < #breadcrumbs[select.x][select.y] then
-      if currentcell.x == breadcrumbs[select.x][select.y][moveanimateidx].x
-      and currentcell.y == breadcrumbs[select.x][select.y][moveanimateidx].y then
+    if segment - 1 < #breadcrumbs[select.x][select.y] then
+      if currentcell.x == breadcrumbs[select.x][select.y][segment].x
+      and currentcell.y == breadcrumbs[select.x][select.y][segment].y then
         previousspace = {
-          x = breadcrumbs[select.x][select.y][moveanimateidx].x,
-          y = breadcrumbs[select.x][select.y][moveanimateidx].y
+          x = breadcrumbs[select.x][select.y][segment].x,
+          y = breadcrumbs[select.x][select.y][segment].y
         }
-        moveanimateidx += 1
+        moveanimation.segment += 1
       else
-        pixelpos.x += breadcrumbs[select.x][select.y][moveanimateidx].x - previousspace.x
-        pixelpos.y += breadcrumbs[select.x][select.y][moveanimateidx].y - previousspace.y
+        pixelpos.x += breadcrumbs[select.x][select.y][segment].x - previousspace.x
+        pixelpos.y += breadcrumbs[select.x][select.y][segment].y - previousspace.y
       end
 
       local movescreenpos = {
@@ -564,6 +565,7 @@ function move(x, y)
   }
 
   moveanimation = {
+    segment = 1,
     select = {
       x = select.x,
       y = select.y
@@ -582,8 +584,6 @@ function move(x, y)
     },
     sprite = friendly.sprite
   }
-
-  moveanimateidx = 1
 end
 
 function alias(x, y)

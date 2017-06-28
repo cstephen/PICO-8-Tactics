@@ -133,7 +133,7 @@ end
 function _update()
   if btnp(0) then
     if g_select.x > 0
-    and g_animation == nil then
+    and g_battleanimation == nil then
       g_select.x -= 1
       if g_select.x - g_mapcorner.x < 0 then
         g_mapcorner.x -= 1
@@ -144,7 +144,7 @@ function _update()
 
   if btnp(1) then
     if g_select.x < 127
-    and g_animation == nil then
+    and g_battleanimation == nil then
       g_select.x += 1
       if g_select.x - g_mapcorner.x > 15 then
         g_mapcorner.x += 1
@@ -155,7 +155,7 @@ function _update()
 
   if btnp(2) then
     if g_select.y > 0
-    and g_animation == nil then
+    and g_battleanimation == nil then
       g_select.y -= 1
       if g_select.y - g_mapcorner.y < 0 then
         g_mapcorner.y -= 1
@@ -166,7 +166,7 @@ function _update()
 
   if btnp(3) then
     if g_select.y < 31
-    and g_animation == nil then
+    and g_battleanimation == nil then
       g_select.y += 1
       if g_select.y - g_mapcorner.y > 15 then
         g_mapcorner.y += 1
@@ -218,13 +218,21 @@ end
 
 function _draw()
   cls()
+
   mapanimate()
   map(g_mapcorner.x, g_mapcorner.y, 0, 0, 16, 16)
+
   griddraw(g_bg)
   griddraw(g_fg)
   selectdraw()
-  animate()
-  moveanimate()
+
+  if g_moveanimation != nil then
+    moveanimate()
+  end
+
+  if g_battleanimation != nil then
+    battleanimate()
+  end
 end
 
 function copy(src)
@@ -343,114 +351,112 @@ function selectdraw()
   end
 end
 
-function animate()
-  if g_animation != nil then
-    g_animation.frame += 1
+function battleanimate()
+  g_battleanimation.frame += 1
 
-    local frame = g_animation.frame
-    local counterattack = g_animation.counterattack
-    local friendly = g_animation.friendly
-    local enemy = g_animation.enemy
+  local frame = g_battleanimation.frame
+  local counterattack = g_battleanimation.counterattack
+  local friendly = g_battleanimation.friendly
+  local enemy = g_battleanimation.enemy
 
-    if frame > 30 and frame < 116 then
-      local friendlystats = {
-        pos = {
-          x = 16,
-          y = 69
-        },
-        width = 31
-      }
-      showstats(g_friendly, friendlystats)
+  if frame > 30 and frame < 116 then
+    local friendlystats = {
+      pos = {
+        x = 16,
+        y = 69
+      },
+      width = 31
+    }
+    showstats(g_friendly, friendlystats)
 
-      local enemystats = {
-        pos = {
-          x = 82,
-          y = 69
-        },
-        width = 31
-      }
-      showstats(g_enemy, enemystats)
-    end
-
-    if frame <= 30 then
-      zoom(0, 1)
-    elseif frame > 60 and frame <= 63 then
-      nudge("friendly", 1)
-    elseif frame > 63 and frame <= 66 then
-      damage("enemy")
-      nudge("friendly", -1)
-    elseif frame > 81 and frame <= 83 then
-      if counterattack == true then
-        nudge("enemy", -1)
-      end
-    elseif frame > 83 and frame <= 86 then
-      if counterattack == true then
-        damage("friendly")
-        nudge("enemy", 1)
-      end
-    elseif frame > 116 and frame <= 146 then
-      zoom(116, -1)
-    elseif frame > 146 then
-      if g_friendly.hp == 0 then
-        die(g_friendly)
-      else
-        g_friendly.sprite = friendly.sprite
-      end
-
-      if g_enemy.hp == 0 then
-        die(g_enemy)
-      else
-        g_enemy.sprite = enemy.sprite
-      end
-
-      g_animation = nil
-      return
-    end
-
-    local pos = spritepos(friendly.sprite)
-    sspr(pos.x * 8, pos.y * 8, 8, 8, friendly.move.x, friendly.move.y, friendly.size.x, friendly.size.y)
-
-    pos = spritepos(enemy.sprite)
-    sspr(pos.x * 8, pos.y * 8, 8, 8, enemy.move.x, enemy.move.y, enemy.size.x, enemy.size.y)
+    local enemystats = {
+      pos = {
+        x = 82,
+        y = 69
+      },
+      width = 31
+    }
+    showstats(g_enemy, enemystats)
   end
+
+  if frame <= 30 then
+    zoom(0, 1)
+  elseif frame > 60 and frame <= 63 then
+    nudge("friendly", 1)
+  elseif frame > 63 and frame <= 66 then
+    damage("enemy")
+    nudge("friendly", -1)
+  elseif frame > 81 and frame <= 83 then
+    if counterattack == true then
+      nudge("enemy", -1)
+    end
+  elseif frame > 83 and frame <= 86 then
+    if counterattack == true then
+      damage("friendly")
+      nudge("enemy", 1)
+    end
+  elseif frame > 116 and frame <= 146 then
+    zoom(116, -1)
+  elseif frame > 146 then
+    if g_friendly.hp == 0 then
+      die(g_friendly)
+    else
+      g_friendly.sprite = friendly.sprite
+    end
+
+    if g_enemy.hp == 0 then
+      die(g_enemy)
+    else
+      g_enemy.sprite = enemy.sprite
+    end
+
+    g_battleanimation = nil
+    return
+  end
+
+  local pos = spritepos(friendly.sprite)
+  sspr(pos.x * 8, pos.y * 8, 8, 8, friendly.move.x, friendly.move.y, friendly.size.x, friendly.size.y)
+
+  pos = spritepos(enemy.sprite)
+  sspr(pos.x * 8, pos.y * 8, 8, 8, enemy.move.x, enemy.move.y, enemy.size.x, enemy.size.y)
 end
 
 function zoom(baseframe, direction)
   local progress
 
   if direction > 0 then
-    progress = g_animation.frame - baseframe
+    progress = g_battleanimation.frame - baseframe
   else
-    progress = 30 - (g_animation.frame - baseframe)
+    progress = 30 - (g_battleanimation.frame - baseframe)
   end
 
   local scale = 8 + 8 * (progress / 15)
 
-  g_animation.friendly.size = {
+  g_battleanimation.friendly.size = {
     x = scale,
     y = scale
   }
 
-  g_animation.friendly.move = {
-    x = ((g_friendly.x - g_mapcorner.x) * 8 + (((29 - (g_friendly.x - g_mapcorner.x) * 8) / 30) * progress)) - g_animation.friendly.size.x / 2 + 4,
-    y = ((g_friendly.y - g_mapcorner.y) * 8 + (((40 - (g_friendly.y - g_mapcorner.y) * 8) / 30) * progress)) - g_animation.friendly.size.y / 2 + 4
+  g_battleanimation.friendly.move = {
+    x = ((g_friendly.x - g_mapcorner.x) * 8 + (((29 - (g_friendly.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.friendly.size.x / 2 + 4,
+    y = ((g_friendly.y - g_mapcorner.y) * 8 + (((40 - (g_friendly.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.friendly.size.y / 2 + 4
   }
 
-  g_animation.enemy.size = {
+  g_battleanimation.enemy.size = {
     x = scale,
     y = scale
   }
 
-  g_animation.enemy.move = {
-    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((95 - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_animation.enemy.size.x / 2 + 4,
-    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((40 - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_animation.enemy.size.y / 2 + 4
+  g_battleanimation.enemy.move = {
+    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((95 - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.enemy.size.x / 2 + 4,
+    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((40 - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.enemy.size.y / 2 + 4
   }
 end
 
 function nudge(alignment, direction)
-  g_animation[alignment].move = {
-    x = g_animation[alignment].move.x + direction,
-    y = g_animation[alignment].move.y
+  g_battleanimation[alignment].move = {
+    x = g_battleanimation[alignment].move.x + direction,
+    y = g_battleanimation[alignment].move.y
   }
 end
 
@@ -495,54 +501,52 @@ function movespaces(x, y)
 end
 
 function moveanimate()
-  if g_moveanimation != nil then
-    local segment = g_moveanimation.segment
-    local select = g_moveanimation.select
-    local begin = g_moveanimation.begin
-    local finish = g_moveanimation.finish
-    local pixelpos = g_moveanimation.pixelpos
-    local sprite = g_moveanimation.sprite
+  local segment = g_moveanimation.segment
+  local select = g_moveanimation.select
+  local begin = g_moveanimation.begin
+  local finish = g_moveanimation.finish
+  local pixelpos = g_moveanimation.pixelpos
+  local sprite = g_moveanimation.sprite
 
-    local currentcell = {
-      x = pixelpos.x / 8,
-      y = pixelpos.y / 8
+  local currentcell = {
+    x = pixelpos.x / 8,
+    y = pixelpos.y / 8
+  }
+
+  if currentcell.x == begin.x
+  and currentcell.y == begin.y then
+    gridclear(g_bg, {sprite = 0})
+    unplace(g_friendly.x, g_friendly.y)
+  end
+
+  if segment - 1 < #g_breadcrumbs[select.x][select.y] then
+    if currentcell.x == g_breadcrumbs[select.x][select.y][segment].x
+    and currentcell.y == g_breadcrumbs[select.x][select.y][segment].y then
+      g_previousspace = {
+        x = g_breadcrumbs[select.x][select.y][segment].x,
+        y = g_breadcrumbs[select.x][select.y][segment].y
+      }
+      g_moveanimation.segment += 1
+    else
+      pixelpos.x += g_breadcrumbs[select.x][select.y][segment].x - g_previousspace.x
+      pixelpos.y += g_breadcrumbs[select.x][select.y][segment].y - g_previousspace.y
+    end
+
+    local movescreenpos = {
+      x = pixelpos.x - (g_mapcorner.x * 8),
+      y = pixelpos.y - (g_mapcorner.y * 8)
     }
 
-    if currentcell.x == begin.x
-    and currentcell.y == begin.y then
-      gridclear(g_bg, {sprite = 0})
-      unplace(g_friendly.x, g_friendly.y)
-    end
+    spr(sprite, movescreenpos.x, movescreenpos.y)
+  end
 
-    if segment - 1 < #g_breadcrumbs[select.x][select.y] then
-      if currentcell.x == g_breadcrumbs[select.x][select.y][segment].x
-      and currentcell.y == g_breadcrumbs[select.x][select.y][segment].y then
-        g_previousspace = {
-          x = g_breadcrumbs[select.x][select.y][segment].x,
-          y = g_breadcrumbs[select.x][select.y][segment].y
-        }
-        g_moveanimation.segment += 1
-      else
-        pixelpos.x += g_breadcrumbs[select.x][select.y][segment].x - g_previousspace.x
-        pixelpos.y += g_breadcrumbs[select.x][select.y][segment].y - g_previousspace.y
-      end
-
-      local movescreenpos = {
-        x = pixelpos.x - (g_mapcorner.x * 8),
-        y = pixelpos.y - (g_mapcorner.y * 8)
-      }
-
-      spr(sprite, movescreenpos.x, movescreenpos.y)
-    end
-
-    if currentcell.x == finish.x
-    and currentcell.y == finish.y then
-      place(finish.x, finish.y, g_friendly)
-      g_friendly = alias(finish.x, finish.y)
-      g_moving = false
-      g_moveanimation = nil
-      attackspaces()
-    end
+  if currentcell.x == finish.x
+  and currentcell.y == finish.y then
+    place(finish.x, finish.y, g_friendly)
+    g_friendly = alias(finish.x, finish.y)
+    g_moving = false
+    g_moveanimation = nil
+    attackspaces()
   end
 end
 
@@ -595,7 +599,7 @@ function attack()
   gridclear(g_bg, {sprite = 0})
   g_attacking = false
 
-  g_animation = {
+  g_battleanimation = {
     frame = 0,
     friendly = {
       sprite = g_friendly.sprite
@@ -609,9 +613,9 @@ function attack()
   explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, {"good"}, {})
 
   if g_bg[g_friendly.x][g_friendly.y].sprite == 253 then
-    g_animation.counterattack = true
+    g_battleanimation.counterattack = true
   else
-    g_animation.counterattack = false
+    g_battleanimation.counterattack = false
   end
 
   gridclear(g_bg, {sprite = 0})

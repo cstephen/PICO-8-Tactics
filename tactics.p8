@@ -117,17 +117,10 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  place(18, 0, unit(g_knight, "good"))
-  g_fg[0][18].hp = 7
-
-  place(19, 0, unit(g_dwarf, "good"))
-  g_fg[0][19].hp = 2
-
-  place(22, 1, unit(g_dwarf, "evil"))
-  g_fg[1][22].hp = 7
-
-  place(21, 0, unit(g_archer, "good"))
-  g_fg[0][21].hp = 5
+  createunit(g_knight, "good", 18, 0)
+  createunit(g_dwarf, "good", 19, 0)
+  createunit(g_dwarf, "evil", 22, 1)
+  createunit(g_archer, "good", 21, 0)
 end
 
 function _update()
@@ -487,10 +480,15 @@ function showstats(unit, screen)
   statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
 end
 
-function unit(base, alignment)
+function createunit(base, alignment, x, y)
   local new = copy(base)
+  new.pos = {
+    x = x,
+    y = y
+  }
   new.alignment = alignment
   new.sprite = g_sprites[base.name][alignment]
+  place(x, y, new)
   return new
 end
 

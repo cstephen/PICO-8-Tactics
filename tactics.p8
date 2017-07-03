@@ -117,10 +117,11 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  createunit(g_knight, "good", 18, 0)
-  createunit(g_dwarf, "good", 19, 0)
-  createunit(g_dwarf, "evil", 22, 1)
-  createunit(g_archer, "good", 21, 0)
+  exampleunit = createunit(g_knight, "good", 18, 0)
+
+  modifyunit(exampleunit, {
+    hp = 7
+  })
 end
 
 function _update()
@@ -490,6 +491,12 @@ function createunit(base, alignment, x, y)
   new.sprite = g_sprites[base.name][alignment]
   place(x, y, new)
   return new
+end
+
+function modifyunit(unit, modifications)
+  for key, value in pairs(modifications) do
+    g_fg[unit.pos.x][unit.pos.y][key] = value
+  end
 end
 
 function movespaces(x, y)

@@ -6,9 +6,11 @@ __lua__
 g_select = {x = 18, y = 0}
 g_moving = false
 g_attacking = false
+g_back = false
 g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
+g_units = {}
 
 g_mapcorner = {
   x = 18,
@@ -108,20 +110,16 @@ g_archer = {
 
 function _init()
   g_bg = gridinit()
-  g_fg = gridinit()
   g_breadcrumbs = gridinit()
   g_typemask = gridinit()
 
   gridclear(g_bg, {sprite = 0})
-  gridclear(g_fg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  exampleunit = createunit(g_knight, "good", 18, 0)
-
-  modifyunit(exampleunit, {
-    hp = 7
-  })
+  add(g_units, createunit(g_knight, "good", 18, 0))
+  add(g_units, createunit(g_dwarf, "good", 18, 1))
+  add(g_units, createunit(g_dwarf, "evil", 19, 1))
 end
 
 function _update()
@@ -171,9 +169,11 @@ function _update()
 
   if btnp(4) and g_moveanimation == nil then
     if g_moving == false
-    and g_attacking == false
-    and g_typemask[g_select.x][g_select.y] == "good" then
-      movespaces(g_select.x, g_select.y)
+    and g_attacking == false then
+      g_friendly = getunit(g_select.x, g_select.y)
+      if g_friendly != nil and g_friendly.alignment == "good" then
+        movespaces(g_friendly.x, g_friendly.y)
+      end
     elseif g_moving == true
     and g_attacking == false
     and g_valid[g_select.x] != nil
@@ -199,8 +199,12 @@ function _update()
     and g_attacking == false then
       gridclear(g_bg, {sprite = 0})
       g_moving = false
+      modifyunit(g_friendly, {
+        moving = false
+      })
     elseif g_moving == false
     and g_attacking == true then
+      g_back = true
       gridclear(g_bg, {sprite = 0})
       move(g_lastspace.x, g_lastspace.y)
       movespaces(g_friendly.x, g_friendly.y)
@@ -217,7 +221,7 @@ function _draw()
   map(g_mapcorner.x, g_mapcorner.y, 0, 0, 16, 16)
 
   griddraw(g_bg)
-  griddraw(g_fg)
+  unitdraw()
   selectdraw()
 
   if g_moveanimation != nil then
@@ -263,6 +267,15 @@ function griddraw(grid)
     for j=g_mapcorner.y, g_mapcorner.y + 16 do
       local pos = spritepos(grid[i][j].sprite)
       sspr(pos.x * 8, pos.y * 8, 8, 8, (i - g_mapcorner.x) * 8, (j - g_mapcorner.y) * 8)
+    end
+  end
+end
+
+function unitdraw()
+  for i=1,#g_units do
+    if g_units[i].moving == false then
+      local pos = spritepos(g_units[i].sprite)
+      sspr(pos.x * 8, pos.y * 8, 8, 8, (g_units[i].x - g_mapcorner.x) * 8, (g_units[i].y - g_mapcorner.y) * 8)
     end
   end
 end
@@ -332,7 +345,8 @@ function selectdraw()
 
   spr(255, screenpos.x * 8, screenpos.y * 8)
 
-  if g_fg[g_select.x][g_select.y].sprite != 0 then
+  local unit = getunit(g_select.x, g_select.y)
+  if unit != nil then
     local screen = {
       pos = {
         x = 100,
@@ -341,7 +355,9 @@ function selectdraw()
       width = 26
     }
 
-    showstats(g_fg[g_select.x][g_select.y], screen)
+    if g_battleanimation == nil then
+      showstats(unit, screen)
+    end
   end
 end
 
@@ -483,24 +499,41 @@ end
 
 function createunit(base, alignment, x, y)
   local new = copy(base)
-  new.pos = {
-    x = x,
-    y = y
-  }
+  new.x = x
+  new.y = y
   new.alignment = alignment
   new.sprite = g_sprites[base.name][alignment]
-  place(x, y, new)
+  g_typemask[x][y] = alignment
+  new.moving = false
   return new
 end
 
 function modifyunit(unit, modifications)
   for key, value in pairs(modifications) do
-    g_fg[unit.pos.x][unit.pos.y][key] = value
+    unit[key] = value
   end
 end
 
+function moveunit(unit, x, y)
+  modifyunit(unit, {
+    x = x,
+    y = y
+  })
+  unit.moving = false
+  g_typemask[g_lastspace.x][g_lastspace.y] = "neutral"
+  g_typemask[x][y] = unit.alignment
+end
+
+function getunit(x, y)
+  for i=1,#g_units do
+    if g_units[i].x == x and g_units[i].y == y then
+      return g_units[i]
+    end
+  end
+  return nil
+end
+
 function movespaces(x, y)
-  g_friendly = alias(x, y)
   g_moving = true
   explorerange(g_friendly.x, g_friendly.y, g_friendly.speed, 254, {"neutral", "good"}, {"evil"})
 end
@@ -521,7 +554,6 @@ function moveanimate()
   if currentcell.x == begin.x
   and currentcell.y == begin.y then
     gridclear(g_bg, {sprite = 0})
-    unplace(g_friendly.x, g_friendly.y)
   end
 
   if segment - 1 < #g_breadcrumbs[select.x][select.y] then
@@ -547,8 +579,7 @@ function moveanimate()
 
   if currentcell.x == finish.x
   and currentcell.y == finish.y then
-    place(finish.x, finish.y, g_friendly)
-    g_friendly = alias(finish.x, finish.y)
+    moveunit(g_friendly, finish.x, finish.y)
     g_moving = false
     g_moveanimation = nil
     attackspaces()
@@ -556,38 +587,44 @@ function moveanimate()
 end
 
 function move(x, y)
-  g_lastspace = {
-    x = g_friendly.x,
-    y = g_friendly.y
-  }
-
-  g_moveanimation = {
-    segment = 1,
-    select = {
-      x = g_select.x,
-      y = g_select.y
-    },
-    begin = {
+  if g_back == false then
+    g_lastspace = {
       x = g_friendly.x,
       y = g_friendly.y
-    },
-    finish = {
-      x = x,
-      y = y
-    },
-    pixelpos = {
-      x = g_friendly.x * 8,
-      y = g_friendly.y * 8
-    },
-    sprite = g_friendly.sprite
-  }
-end
+    }
 
-function alias(x, y)
-  local handle = g_fg[x][y]
-  handle.x = x
-  handle.y = y
-  return handle
+    g_moveanimation = {
+      segment = 1,
+      select = {
+        x = g_select.x,
+        y = g_select.y
+      },
+      begin = {
+        x = g_friendly.x,
+        y = g_friendly.y
+      },
+      finish = {
+        x = x,
+        y = y
+      },
+      pixelpos = {
+        x = g_friendly.x * 8,
+        y = g_friendly.y * 8
+      },
+      sprite = g_friendly.sprite
+    }
+
+    modifyunit(g_friendly, {
+      moving = true
+    })
+  else
+    g_typemask[g_friendly.x][g_friendly.y] = "neutral"
+    moveunit(g_friendly, g_lastspace.x, g_lastspace.y)
+    modifyunit(g_friendly, {
+      moving = false
+    })
+    g_back = false
+  end
 end
 
 function attackspaces()
@@ -599,7 +636,7 @@ function attackspaces()
 end
 
 function attack()
-  g_enemy = alias(g_select.x, g_select.y)
+  g_enemy = getunit(g_select.x, g_select.y)
 
   gridclear(g_bg, {sprite = 0})
   g_attacking = false
@@ -626,16 +663,6 @@ function attack()
   gridclear(g_bg, {sprite = 0})
   g_friendly.sprite = 0
   g_enemy.sprite = 0
-end
-
-function place(x, y, unit)
-  g_fg[x][y] = copy(unit)
-  g_typemask[x][y] = unit.alignment
-end
-
-function unplace(x, y)
-  g_fg[x][y] = {sprite = 0}
-  g_typemask[x][y] = "neutral"
 end
 
 function explorerange(x, y, steps, sprite, alignments, obstacles)

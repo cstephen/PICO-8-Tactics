@@ -7,9 +7,11 @@ g_select = {x = 18, y = 0}
 g_moving = false
 g_attacking = false
 g_back = false
+g_turnover = false
 g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
+
 g_units = {
   good = {},
   evil = {}
@@ -176,7 +178,7 @@ function _update()
       g_friendly = getunit(g_select.x, g_select.y)
       if g_friendly != nil
       and g_friendly.alignment == "good"
-      and g_friendly.turnover == false then
+      and g_friendly.actionover == false then
         movespaces(g_friendly.x, g_friendly.y)
       end
     elseif g_moving == true
@@ -195,7 +197,7 @@ function _update()
         gridclear(g_bg, {sprite = 0})
         g_moving = false
         g_attacking = false
-        g_friendly.turnover = true
+        endturn()
       end
     end
   end
@@ -236,6 +238,10 @@ function _draw()
 
   if g_battleanimation != nil then
     battleanimate()
+  end
+
+  if message != nil then
+    print(message, 41, 56, 4)
   end
 end
 
@@ -429,7 +435,7 @@ function battleanimate()
     end
 
     g_battleanimation = nil
-    g_friendly.turnover = true
+    endturn()
     return
   end
 
@@ -500,6 +506,21 @@ function die(unit)
   unit = {sprite = 0}
 end
 
+function endturn()
+  g_friendly.actionover = true
+  g_turnover = true
+
+  for unit in all(g_units.good) do
+    if unit.actionover == false then
+      g_turnover = false
+    end
+  end
+
+  if g_turnover == true then
+    message = 'enemy turn'
+  end
+end
+
 function showstats(unit, screen)
   statprint(unit.name, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
   statprint("lvl: 1", screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
@@ -514,7 +535,7 @@ function createunit(base, alignment, x, y)
   new.sprite = g_sprites[base.name][alignment]
   g_typemask[x][y] = alignment
   new.moving = false
-  new.turnover = false
+  new.actionover = false
   return new
 end
 
@@ -645,7 +666,7 @@ function attackspaces()
   if goodspaces - badspaces > 0 then
     g_attacking = true
   else
-    g_friendly.turnover = true
+    endturn()
   end
 end
 

@@ -171,7 +171,9 @@ function _update()
     if g_moving == false
     and g_attacking == false then
       g_friendly = getunit(g_select.x, g_select.y)
-      if g_friendly != nil and g_friendly.alignment == "good" then
+      if g_friendly != nil
+      and g_friendly.alignment == "good"
+      and g_friendly.turnover == false then
         movespaces(g_friendly.x, g_friendly.y)
       end
     elseif g_moving == true
@@ -190,6 +192,7 @@ function _update()
         gridclear(g_bg, {sprite = 0})
         g_moving = false
         g_attacking = false
+        g_friendly.turnover = true
       end
     end
   end
@@ -421,6 +424,7 @@ function battleanimate()
     end
 
     g_battleanimation = nil
+    g_friendly.turnover = true
     return
   end
 
@@ -505,6 +509,7 @@ function createunit(base, alignment, x, y)
   new.sprite = g_sprites[base.name][alignment]
   g_typemask[x][y] = alignment
   new.moving = false
+  new.turnover = false
   return new
 end
 
@@ -632,6 +637,8 @@ function attackspaces()
   local badspaces = explorerange(g_friendly.x, g_friendly.y, g_friendly.attackmin, 0, {"evil"}, {})
   if goodspaces - badspaces > 0 then
     g_attacking = true
+  else
+    g_friendly.turnover = true
   end
 end
 

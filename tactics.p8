@@ -10,7 +10,10 @@ g_back = false
 g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
-g_units = {}
+g_units = {
+  good = {},
+  evil = {}
+}
 
 g_mapcorner = {
   x = 18,
@@ -117,9 +120,9 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units, createunit(g_knight, "good", 18, 0))
-  add(g_units, createunit(g_dwarf, "good", 18, 1))
-  add(g_units, createunit(g_dwarf, "evil", 19, 1))
+  add(g_units.good, createunit(g_knight, "good", 18, 0))
+  add(g_units.good, createunit(g_dwarf, "good", 18, 1))
+  add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
 end
 
 function _update()
@@ -275,10 +278,12 @@ function griddraw(grid)
 end
 
 function unitdraw()
-  for i=1,#g_units do
-    if g_units[i].moving == false then
-      local pos = spritepos(g_units[i].sprite)
-      sspr(pos.x * 8, pos.y * 8, 8, 8, (g_units[i].x - g_mapcorner.x) * 8, (g_units[i].y - g_mapcorner.y) * 8)
+  for alignment, units in pairs(g_units) do
+    for unit in all(units) do
+      if unit.moving == false then
+        local pos = spritepos(unit.sprite)
+        sspr(pos.x * 8, pos.y * 8, 8, 8, (unit.x - g_mapcorner.x) * 8, (unit.y - g_mapcorner.y) * 8)
+      end
     end
   end
 end
@@ -530,9 +535,11 @@ function moveunit(unit, x, y)
 end
 
 function getunit(x, y)
-  for i=1,#g_units do
-    if g_units[i].x == x and g_units[i].y == y then
-      return g_units[i]
+  for alignment, units in pairs(g_units) do
+    for unit in all(units) do
+      if unit.x == x and unit.y == y then
+        return unit
+      end
     end
   end
   return nil

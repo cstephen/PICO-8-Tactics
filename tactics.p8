@@ -7,13 +7,15 @@ g_select = {x = 18, y = 0}
 g_friendlymoving = false
 g_enemymoving = false
 g_attacking = false
+g_enemyattacking = false
+g_enemyendturn = false
 g_back = false
 g_turnover = false
 g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
-g_message = nil
 g_playerturn = true
+enemymovecounter = 0
 
 g_units = {
   good = {},
@@ -126,7 +128,7 @@ function _init()
   gridclear(g_typemask, "neutral")
 
   add(g_units.good, createunit(g_knight, "good", 18, 0))
-  add(g_units.good, createunit(g_dwarf, "good", 18, 1))
+  add(g_units.good, createunit(g_dwarf, "good", 18, 3))
   add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
 end
 
@@ -154,10 +156,6 @@ function _draw()
 
   if g_battleanimation != nil then
     battleanimate()
-  end
-
-  if g_message != nil then
-    print(g_message, 41, 56, 4)
   end
 end
 
@@ -221,12 +219,15 @@ function playerturn()
     and g_valid[g_select.x][g_select.y] != nil then
       if g_typemask[g_select.x][g_select.y] == "neutral"
       or (g_select.x == g_chosen.x and g_select.y == g_chosen.y) then
-        move(g_select.x, g_select.y)
+        move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_friendlymoving == false
     and g_attacking == true then
       if g_bg[g_select.x][g_select.y].sprite == 253 then
-        attack()
+        attack({
+          x = g_select.x,
+          y = g_select.y
+        })
       elseif g_select.x == g_chosen.x and g_select.y == g_chosen.y then
         gridclear(g_bg, {sprite = 0})
         g_friendlymoving = false
@@ -248,7 +249,7 @@ function playerturn()
     and g_attacking == true then
       g_back = true
       gridclear(g_bg, {sprite = 0})
-      move(g_lastspace.x, g_lastspace.y)
+      move(g_lastspace.x, g_lastspace.y, {"good", "neutral"}, {"evil"})
       movespaces(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"evil"})
       g_friendlymoving = true
       g_attacking = false
@@ -257,21 +258,37 @@ function playerturn()
 end
 
 function enemyturn()
-  if g_enemymoving == false then
+  if g_enemymoving == false and g_enemyattacking == false and g_enemyendturn == false then
     for unit in all(g_units.evil) do
       g_chosen = getunit(unit.x, unit.y)
       movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
       for xspace, yspaces in pairs(g_valid) do
         for yspace, steps in pairs(yspaces) do
-          if steps == 0 then
+          enemymovecounter += 1
+          if steps == 0 and enemymovecounter == 9 then
             g_select = {
               x = xspace,
               y = yspace
             }
             g_enemymoving = true
-            move(g_select.x, g_select.y)
+            enemymovecounter = 0
+            move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
             return
           end
+        end
+      end
+    end
+  elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
+    for xspace, yspaces in pairs(g_attackvalid) do
+      for yspace, steps in pairs(yspaces) do
+        if g_bg[xspace][yspace].sprite == 253 then
+          attack({
+            x = xspace,
+            y = yspace
+          })
+          g_enemyattacking = false
+          g_enemyendturn = true
+          return
         end
       end
     end
@@ -550,7 +567,6 @@ function endturn()
   end
 
   if g_turnover == true then
-    g_message = 'enemy turn'
     g_playerturn = false
   end
 end
@@ -612,6 +628,7 @@ function moveanimate()
   local finish = g_moveanimation.finish
   local pixelpos = g_moveanimation.pixelpos
   local sprite = g_moveanimation.sprite
+  local attacktargets = g_moveanimation.attacktargets
 
   local currentcell = {
     x = pixelpos.x / 8,
@@ -648,12 +665,13 @@ function moveanimate()
   and currentcell.y == finish.y then
     moveunit(g_chosen, finish.x, finish.y)
     g_friendlymoving = false
+    g_enemymoving = false
     g_moveanimation = nil
-    attackspaces()
+    attackspaces(attacktargets)
   end
 end
 
-function move(x, y)
+function move(x, y, friendlies, enemies)
   if g_back == false then
     g_lastspace = {
       x = g_chosen.x,
@@ -678,7 +696,8 @@ function move(x, y)
         x = g_chosen.x * 8,
         y = g_chosen.y * 8
       },
-      sprite = g_chosen.sprite
+      sprite = g_chosen.sprite,
+      attacktargets = enemies
     }
 
     modifyunit(g_chosen, {
@@ -694,21 +713,31 @@ function move(x, y)
   end
 end
 
-function attackspaces()
-  local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, {"evil"}, {})
-  local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, {"evil"}, {})
+function attackspaces(targets)
+  local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
+  g_attackvalid = copy(g_valid)
+  local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
   if goodspaces - badspaces > 0 then
-    g_attacking = true
+    if g_playerturn == true then
+      g_attacking = true
+    else
+      g_enemyattacking =  true
+    end
   else
     endturn()
   end
 end
 
-function attack()
-  g_enemy = getunit(g_select.x, g_select.y)
+function attack(target)
+  g_enemy = getunit(target.x, target.y)
 
   gridclear(g_bg, {sprite = 0})
-  g_attacking = false
+
+  if playerturn == true then
+    g_attacking = false
+  else
+    g_enemyattacking = false
+  end
 
   g_battleanimation = {
     frame = 0,
@@ -720,8 +749,15 @@ function attack()
     }
   }
 
-  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, {"good"}, {})
-  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, {"good"}, {})
+  local counteralignment = nil
+  if target.alignment == "good" then
+    counteralignment = {"evil"}
+  else
+    counteralignment = {"good"}
+  end
+
+  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {})
+  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {})
 
   if g_bg[g_chosen.x][g_chosen.y].sprite == 253 then
     g_battleanimation.counterattack = true

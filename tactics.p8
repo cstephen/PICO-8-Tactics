@@ -262,21 +262,24 @@ function enemyturn()
     for unit in all(g_units.evil) do
       g_chosen = getunit(unit.x, unit.y)
       movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
-      for xspace, yspaces in pairs(g_valid) do
-        for yspace, steps in pairs(yspaces) do
-          enemymovecounter += 1
-          if steps == 0 and enemymovecounter == 9 then
-            g_select = {
-              x = xspace,
-              y = yspace
-            }
-            g_enemymoving = true
-            enemymovecounter = 0
-            move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
-            return
-          end
-        end
-      end
+
+      xkeys = keys(g_valid)
+      xkeyindex = flr(rnd(#xkeys))
+      xkey = xkeys[xkeyindex + 1]
+
+      ykeys = keys(g_valid[xkey])
+      ykeyindex = flr(rnd(#ykeys))
+      ykey = ykeys[ykeyindex + 1]
+
+      g_select = {
+        x = xkey,
+        y = ykey
+      }
+
+      g_enemymoving = true
+      enemymovecounter = 0
+      move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
+      return
     end
   elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
     for xspace, yspaces in pairs(g_attackvalid) do
@@ -301,6 +304,14 @@ function copy(src)
     dest[key] = value
   end
   return dest
+end
+
+function keys(object)
+  local keys = {}
+  for key, value in pairs(object) do
+    add(keys, key)
+  end
+  return keys
 end
 
 function statprint(text, x, y, color, width)

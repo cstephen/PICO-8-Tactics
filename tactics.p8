@@ -581,9 +581,16 @@ function damage(alignment)
   end
 end
 
-function die(unit)
-  g_typemask[unit.x][unit.y] = "neutral"
-  unit = {sprite = 0}
+function die(dyingunit)
+  g_typemask[dyingunit.x][dyingunit.y] = "neutral"
+
+  for alignment, units in pairs(g_units) do
+    for unit in all(units) do
+      if dyingunit == unit then
+        del(units, unit)
+      end
+    end
+  end
 end
 
 function endturn()

@@ -509,7 +509,7 @@ function battleanimate()
 
     g_battleanimation = nil
 
-    if playerturn == true then
+    if g_playerturn == true then
       g_attacking = false
     else
       g_enemyattacking = false

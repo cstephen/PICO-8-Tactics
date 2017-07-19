@@ -130,6 +130,7 @@ function _init()
   add(g_units.good, createunit(g_knight, "good", 18, 0))
   add(g_units.good, createunit(g_dwarf, "good", 18, 3))
   add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
+  add(g_units.evil, createunit(g_dwarf, "evil", 19, 2))
 end
 
 function _update()
@@ -257,44 +258,55 @@ function playerturn()
   end
 end
 
-function enemyturn()
-  if g_enemymoving == false and g_enemyattacking == false and g_enemyendturn == false then
-    for unit in all(g_units.evil) do
-      g_chosen = getunit(unit.x, unit.y)
-      movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
+function getenemymove()
+  xkeys = keys(g_valid)
+  xkeyindex = flr(rnd(#xkeys))
+  xkey = xkeys[xkeyindex + 1]
 
-      xkeys = keys(g_valid)
-      xkeyindex = flr(rnd(#xkeys))
-      xkey = xkeys[xkeyindex + 1]
+  ykeys = keys(g_valid[xkey])
+  ykeyindex = flr(rnd(#ykeys))
+  ykey = ykeys[ykeyindex + 1]
 
-      ykeys = keys(g_valid[xkey])
-      ykeyindex = flr(rnd(#ykeys))
-      ykey = ykeys[ykeyindex + 1]
+  return {
+    x = xkey,
+    y = ykey
+  }
+end
 
-      g_select = {
-        x = xkey,
-        y = ykey
-      }
-
-      g_enemymoving = true
-      enemymovecounter = 0
-      move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
-      return
-    end
-  elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
-    for xspace, yspaces in pairs(g_attackvalid) do
-      for yspace, steps in pairs(yspaces) do
-        if g_bg[xspace][yspace].sprite == 253 then
-          attack({
-            x = xspace,
-            y = yspace
-          })
-          g_enemyattacking = false
-          g_enemyendturn = true
-          return
-        end
+function getenemyattack()
+  for xspace, yspaces in pairs(g_attackvalid) do
+    for yspace, steps in pairs(yspaces) do
+      if g_bg[xspace][yspace].sprite == 253 then
+        return {
+          x = xspace,
+          y = yspace
+        }
       end
     end
+  end
+end
+
+function enemyturn()
+  if g_enemymoving == false and g_enemyattacking == false and g_enemyendturn == false and g_battleanimation == nil then
+    for unit in all(g_units.evil) do
+      if unit.actionover == false then
+        g_chosen = getunit(unit.x, unit.y)
+        movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
+
+        local movepos = getenemymove()
+
+        g_select = movepos
+        g_enemymoving = true
+        enemymovecounter = 0
+        move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
+        return
+      end
+    end
+  elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
+    local attackpos = getenemyattack()
+    attack(attackpos)
+    g_enemyattacking = false
+    g_chosen.actionover = true
   end
 end
 
@@ -496,6 +508,13 @@ function battleanimate()
     end
 
     g_battleanimation = nil
+
+    if playerturn == true then
+      g_attacking = false
+    else
+      g_enemyattacking = false
+    end
+
     endturn()
     return
   end
@@ -571,14 +590,35 @@ function endturn()
   g_chosen.actionover = true
   g_turnover = true
 
-  for unit in all(g_units.good) do
-    if unit.actionover == false then
-      g_turnover = false
+  if g_playerturn == true then
+    for unit in all(g_units.good) do
+      if unit.actionover == false then
+        g_turnover = false
+      end
     end
-  end
+    if g_turnover == true then
+      g_playerturn = false
+      g_friendlymoving = false
 
-  if g_turnover == true then
-    g_playerturn = false
+      for unit in all(g_units.evil) do
+        unit.actionover = false
+      end
+    end
+  else
+    for unit in all(g_units.evil) do
+      if unit.actionover == false then
+        g_turnover = false
+      end
+    end
+    if g_turnover == true then
+      g_playerturn = true
+      g_friendlymoving = false
+      g_attacking = false
+
+      for unit in all(g_units.good) do
+        unit.actionover = false
+      end
+    end
   end
 end
 
@@ -744,12 +784,6 @@ function attack(target)
 
   gridclear(g_bg, {sprite = 0})
 
-  if playerturn == true then
-    g_attacking = false
-  else
-    g_enemyattacking = false
-  end
-
   g_battleanimation = {
     frame = 0,
     friendly = {
@@ -761,7 +795,7 @@ function attack(target)
   }
 
   local counteralignment = nil
-  if target.alignment == "good" then
+  if g_enemy.alignment == "good" then
     counteralignment = {"evil"}
   else
     counteralignment = {"good"}

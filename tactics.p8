@@ -456,21 +456,26 @@ function battleanimate()
   local friendly = g_battleanimation.friendly
   local enemy = g_battleanimation.enemy
 
+  local statpos = {
+    good = {
+      x = 16,
+      y = 69
+    },
+    evil = {
+      x = 82,
+      y = 69
+    }
+  }
+
   if frame > 30 and frame < 116 then
     local friendlystats = {
-      pos = {
-        x = 16,
-        y = 69
-      },
+      pos = statpos[g_chosen.alignment],
       width = 31
     }
     showstats(g_chosen, friendlystats)
 
     local enemystats = {
-      pos = {
-        x = 82,
-        y = 69
-      },
+      pos = statpos[g_enemy.alignment],
       width = 31
     }
     showstats(g_enemy, enemystats)
@@ -529,6 +534,17 @@ end
 function zoom(baseframe, direction)
   local progress
 
+  local zoompos = {
+    good = {
+      x = 29,
+      y = 40
+    },
+    evil = {
+      x = 95,
+      y = 40
+    }
+  }
+
   if direction > 0 then
     progress = g_battleanimation.frame - baseframe
   else
@@ -543,8 +559,8 @@ function zoom(baseframe, direction)
   }
 
   g_battleanimation.friendly.move = {
-    x = ((g_chosen.x - g_mapcorner.x) * 8 + (((29 - (g_chosen.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.friendly.size.x / 2 + 4,
-    y = ((g_chosen.y - g_mapcorner.y) * 8 + (((40 - (g_chosen.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.friendly.size.y / 2 + 4
+    x = ((g_chosen.x - g_mapcorner.x) * 8 + (((zoompos[g_chosen.alignment].x - (g_chosen.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.friendly.size.x / 2 + 4,
+    y = ((g_chosen.y - g_mapcorner.y) * 8 + (((zoompos[g_chosen.alignment].y - (g_chosen.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.friendly.size.y / 2 + 4
   }
 
   g_battleanimation.enemy.size = {
@@ -553,8 +569,8 @@ function zoom(baseframe, direction)
   }
 
   g_battleanimation.enemy.move = {
-    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((95 - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.enemy.size.x / 2 + 4,
-    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((40 - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.enemy.size.y / 2 + 4
+    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((zoompos[g_enemy.alignment].x - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.enemy.size.x / 2 + 4,
+    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((zoompos[g_enemy.alignment].y - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.enemy.size.y / 2 + 4
   }
 end
 

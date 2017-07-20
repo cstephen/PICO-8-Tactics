@@ -130,7 +130,7 @@ function _init()
   add(g_units.good, createunit(g_knight, "good", 18, 0))
   add(g_units.good, createunit(g_dwarf, "good", 18, 3))
   add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
-  add(g_units.evil, createunit(g_dwarf, "evil", 19, 2))
+  add(g_units.evil, createunit(g_archer, "evil", 19, 2))
 end
 
 function _update()
@@ -258,32 +258,31 @@ function playerturn()
   end
 end
 
-function getenemymove()
-  xkeys = keys(g_valid)
-  xkeyindex = flr(rnd(#xkeys))
-  xkey = xkeys[xkeyindex + 1]
-
-  ykeys = keys(g_valid[xkey])
-  ykeyindex = flr(rnd(#ykeys))
-  ykey = ykeys[ykeyindex + 1]
-
-  return {
-    x = xkey,
-    y = ykey
-  }
-end
-
-function getenemyattack()
-  for xspace, yspaces in pairs(g_attackvalid) do
+function movesequence(table, alignment)
+  local sequence = {}
+  for xspace, yspaces in pairs(table) do
     for yspace, steps in pairs(yspaces) do
-      if g_bg[xspace][yspace].sprite == 253 then
-        return {
+      if table[xspace][yspace].alignment == alignment then
+        add(sequence, {
           x = xspace,
           y = yspace
-        }
+        })
       end
     end
   end
+  return sequence
+end
+
+function getenemymove()
+  local sequence = movesequence(g_valid, "neutral")
+  local space = sequence[flr(rnd(#sequence)) + 1]
+  return space
+end
+
+function getenemyattack()
+  local sequence = movesequence(g_attackvalid, "good")
+  local space = sequence[flr(rnd(#sequence)) + 1]
+  return space
 end
 
 function enemyturn()
@@ -316,14 +315,6 @@ function copy(src)
     dest[key] = value
   end
   return dest
-end
-
-function keys(object)
-  local keys = {}
-  for key, value in pairs(object) do
-    add(keys, key)
-  end
-  return keys
 end
 
 function statprint(text, x, y, color, width)
@@ -850,18 +841,22 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
     g_valid[x] = {}
   end
 
-  if g_valid[x][y] == nil
-  or g_valid[x][y] < steps then
-    g_valid[x][y] = steps
-  else
-    return
+  if g_valid[x][y] == nil then
+    g_valid[x][y] = {}
   end
 
-  for alignment in all(alignments) do
-    if g_typemask[x][y] == alignment then
-      g_bg[x][y] = {sprite = sprite}
-      g_spaces += 1
+  if g_valid[x][y].steps == nil
+  or g_valid[x][y].steps < steps then
+    g_valid[x][y].steps = steps
+    g_valid[x][y].alignment = g_typemask[x][y]
+    for alignment in all(alignments) do
+      if g_typemask[x][y] == alignment then
+        g_bg[x][y] = {sprite = sprite}
+        g_spaces += 1
+      end
     end
+  else
+    return
   end
 
   add(breadcrumb, {

@@ -15,7 +15,7 @@ g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
 g_playerturn = true
-enemymovecounter = 0
+g_spaces = nil
 
 g_units = {
   good = {},
@@ -128,7 +128,7 @@ function _init()
   gridclear(g_typemask, "neutral")
 
   add(g_units.good, createunit(g_knight, "good", 18, 0))
-  add(g_units.good, createunit(g_dwarf, "good", 18, 3))
+  add(g_units.good, createunit(g_archer, "good", 18, 3))
   add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
   add(g_units.evil, createunit(g_archer, "evil", 19, 2))
 end
@@ -258,31 +258,8 @@ function playerturn()
   end
 end
 
-function movesequence(table, alignment)
-  local sequence = {}
-  for xspace, yspaces in pairs(table) do
-    for yspace, steps in pairs(yspaces) do
-      if table[xspace][yspace].alignment == alignment then
-        add(sequence, {
-          x = xspace,
-          y = yspace
-        })
-      end
-    end
-  end
-  return sequence
-end
-
-function getenemymove()
-  local sequence = movesequence(g_valid, "neutral")
-  local space = sequence[flr(rnd(#sequence)) + 1]
-  return space
-end
-
-function getenemyattack()
-  local sequence = movesequence(g_attackvalid, "good")
-  local space = sequence[flr(rnd(#sequence)) + 1]
-  return space
+function randomspace()
+  return g_spaces[flr(rnd(#g_spaces)) + 1]
 end
 
 function enemyturn()
@@ -290,20 +267,15 @@ function enemyturn()
     for unit in all(g_units.evil) do
       if unit.actionover == false then
         g_chosen = getunit(unit.x, unit.y)
-        movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
-
-        local movepos = getenemymove()
-
-        g_select = movepos
+        g_spaces = movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
+        g_select = randomspace()
         g_enemymoving = true
-        enemymovecounter = 0
         move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
         return
       end
     end
   elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
-    local attackpos = getenemyattack()
-    attack(attackpos)
+    attack(randomspace())
     g_enemyattacking = false
     g_chosen.actionover = true
   end
@@ -315,6 +287,25 @@ function copy(src)
     dest[key] = value
   end
   return dest
+end
+
+function subtractspaces(sequence1, sequence2)
+  local different = false
+
+  for obj1 in all(sequence1) do
+    for obj2 in all(sequence2) do
+      for key, value in pairs(obj2) do
+        if obj1[key] != value then
+          different = true
+        end
+      end
+      if different == false then
+        del(sequence1, obj1)
+      end
+    end
+  end
+
+  return sequence1
 end
 
 function statprint(text, x, y, color, width)
@@ -683,7 +674,7 @@ end
 
 function movespaces(x, y, passable, obstacles)
   g_friendlymoving = true
-  explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles)
+  return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles)
 end
 
 function moveanimate()
@@ -732,7 +723,7 @@ function moveanimate()
     g_friendlymoving = false
     g_enemymoving = false
     g_moveanimation = nil
-    attackspaces(attacktargets)
+    g_spaces = attackspaces(attacktargets)
   end
 end
 
@@ -779,11 +770,11 @@ function move(x, y, friendlies, enemies)
 end
 
 function attackspaces(targets)
-  local goodspaces = #explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
-  g_attackvalid = copy(g_valid)
-  local badspaces = #explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
+  local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
+  local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
+  local attackspaces = subtractspaces(goodspaces, badspaces)
 
-  if goodspaces - badspaces > 0 then
+  if #attackspaces > 0 then
     if g_playerturn == true then
       g_attacking = true
     else
@@ -792,6 +783,8 @@ function attackspaces(targets)
   else
     endturn()
   end
+
+  return attackspaces
 end
 
 function attack(target)
@@ -845,8 +838,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spac
     g_valid[x][y] = {}
   end
 
-  if g_valid[x][y].steps == nil
-  or g_valid[x][y].steps < steps then
+  local betterpath = g_valid[x][y].steps == nil or g_valid[x][y].steps < steps
+
+  if betterpath == true then
     g_valid[x][y].steps = steps
     g_valid[x][y].alignment = g_typemask[x][y]
     for alignment in all(alignments) do
@@ -865,7 +859,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spac
     y = y
   })
 
-  g_breadcrumbs[x][y] = copy(breadcrumb)
+  if betterpath == true then
+    g_breadcrumbs[x][y] = copy(breadcrumb)
+  end
 
   if validspace(x - 1, y, steps, obstacles) then
     crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)

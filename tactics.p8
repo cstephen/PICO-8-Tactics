@@ -212,19 +212,19 @@ function playerturn()
       if g_chosen != nil
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
-        movespaces(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"evil"})
+        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_friendlymoving == true
     and g_attacking == false
     and g_valid[g_select.x] != nil
     and g_valid[g_select.x][g_select.y] != nil then
-      if g_typemask[g_select.x][g_select.y] == "neutral"
+      if validmove()
       or (g_select.x == g_chosen.x and g_select.y == g_chosen.y) then
         move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_friendlymoving == false
     and g_attacking == true then
-      if g_bg[g_select.x][g_select.y].sprite == 253 then
+      if validmove() then
         attack({
           x = g_select.x,
           y = g_select.y
@@ -251,11 +251,20 @@ function playerturn()
       g_back = true
       gridclear(g_bg, {sprite = 0})
       move(g_lastspace.x, g_lastspace.y, {"good", "neutral"}, {"evil"})
-      movespaces(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"evil"})
+      g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"evil"})
       g_friendlymoving = true
       g_attacking = false
     end
   end
+end
+
+function validmove()
+  for space in all(g_spaces) do
+    if g_select.x == space.x and g_select.y == space.y then
+      return true
+    end
+  end
+  return false
 end
 
 function randomspace()
@@ -267,7 +276,7 @@ function enemyturn()
     for unit in all(g_units.evil) do
       if unit.actionover == false then
         g_chosen = getunit(unit.x, unit.y)
-        g_spaces = movespaces(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
+        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
         g_select = randomspace()
         g_enemymoving = true
         move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
@@ -672,7 +681,7 @@ function getunit(x, y)
   return nil
 end
 
-function movespaces(x, y, passable, obstacles)
+function exploremoves(x, y, passable, obstacles)
   g_friendlymoving = true
   return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles)
 end
@@ -723,7 +732,7 @@ function moveanimate()
     g_friendlymoving = false
     g_enemymoving = false
     g_moveanimation = nil
-    g_spaces = attackspaces(attacktargets)
+    g_spaces = exploreattacks(attacktargets)
   end
 end
 
@@ -769,7 +778,7 @@ function move(x, y, friendlies, enemies)
   end
 end
 
-function attackspaces(targets)
+function exploreattacks(targets)
   local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
   local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
   local attackspaces = subtractspaces(goodspaces, badspaces)
@@ -809,10 +818,11 @@ function attack(target)
     counteralignment = {"good"}
   end
 
-  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {})
-  explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {})
+  local goodspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {})
+  local badspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {})
+  local g_spaces = subtractspaces(goodspaces, badspaces)
 
-  if g_bg[g_chosen.x][g_chosen.y].sprite == 253 then
+  if validmove() then
     g_battleanimation.counterattack = true
   else
     g_battleanimation.counterattack = false

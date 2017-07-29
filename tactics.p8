@@ -267,6 +267,24 @@ function validmove()
   return false
 end
 
+function movespace()
+  for space in all(g_spaces) do
+    local maxspaces = explorerange(space.x, space.y, g_chosen.attackmax, nil, {"good"}, {}, false)
+    local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false)
+    local attackspaces = subtractspaces(maxspaces, minspaces)
+
+    if #attackspaces == 1 then
+      return space
+    end
+  end
+
+  return randomspace()
+end
+
+function attackspace()
+  return randomspace()
+end
+
 function randomspace()
   return g_spaces[flr(rnd(#g_spaces)) + 1]
 end
@@ -277,14 +295,14 @@ function enemyturn()
       if unit.actionover == false then
         g_chosen = getunit(unit.x, unit.y)
         g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
-        g_select = randomspace()
+        g_select = movespace()
         g_enemymoving = true
         move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
         return
       end
     end
   elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
-    attack(randomspace())
+    attack(attackspace())
     g_enemyattacking = false
     g_chosen.actionover = true
   end
@@ -683,7 +701,7 @@ end
 
 function exploremoves(x, y, passable, obstacles)
   g_friendlymoving = true
-  return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles)
+  return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles, true)
 end
 
 function moveanimate()
@@ -779,9 +797,9 @@ function move(x, y, friendlies, enemies)
 end
 
 function exploreattacks(targets)
-  local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
-  local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
-  local attackspaces = subtractspaces(goodspaces, badspaces)
+  local maxspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {}, true)
+  local minspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {}, true)
+  local attackspaces = subtractspaces(maxspaces, minspaces)
 
   if #attackspaces > 0 then
     if g_playerturn == true then
@@ -818,9 +836,9 @@ function attack(target)
     counteralignment = {"good"}
   end
 
-  local goodspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {})
-  local badspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {})
-  local g_spaces = subtractspaces(goodspaces, badspaces)
+  local maxspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {}, true)
+  local minspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {}, true)
+  local g_spaces = subtractspaces(maxspaces, minspaces)
 
   if validmove() then
     g_battleanimation.counterattack = true
@@ -833,13 +851,13 @@ function attack(target)
   g_enemy.sprite = 0
 end
 
-function explorerange(x, y, steps, sprite, alignments, obstacles)
+function explorerange(x, y, steps, sprite, alignments, obstacles, storebreadcrumb)
   g_valid = {}
   spaces = {}
-  return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, spaces)
+  return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, storebreadcrumb, spaces)
 end
 
-function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spaces)
+function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, storebreadcrumb, spaces)
   if g_valid[x] == nil then
     g_valid[x] = {}
   end
@@ -855,7 +873,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spac
     g_valid[x][y].alignment = g_typemask[x][y]
     for alignment in all(alignments) do
       if g_typemask[x][y] == alignment then
-        g_bg[x][y] = {sprite = sprite}
+        if sprite != nil then
+          g_bg[x][y] = {sprite = sprite}
+        end
         add(spaces, {
           x = x,
           y = y
@@ -869,24 +889,24 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spac
     y = y
   })
 
-  if betterpath == true then
+  if storebreadcrumb == true and betterpath == true then
     g_breadcrumbs[x][y] = copy(breadcrumb)
   end
 
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
+    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
+    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
+    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
+    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
   end
 
   return spaces

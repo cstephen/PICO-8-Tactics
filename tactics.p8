@@ -779,9 +779,10 @@ function move(x, y, friendlies, enemies)
 end
 
 function attackspaces(targets)
-  local goodspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
+  local goodspaces = #explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {})
   g_attackvalid = copy(g_valid)
-  local badspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
+  local badspaces = #explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {})
+
   if goodspaces - badspaces > 0 then
     if g_playerturn == true then
       g_attacking = true
@@ -831,12 +832,11 @@ end
 
 function explorerange(x, y, steps, sprite, alignments, obstacles)
   g_valid = {}
-  g_spaces = 0
-  crawlspace(x, y, steps, sprite, alignments, obstacles, {})
-  return g_spaces
+  spaces = {}
+  return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, spaces)
 end
 
-function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
+function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, spaces)
   if g_valid[x] == nil then
     g_valid[x] = {}
   end
@@ -852,11 +852,12 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
     for alignment in all(alignments) do
       if g_typemask[x][y] == alignment then
         g_bg[x][y] = {sprite = sprite}
-        g_spaces += 1
+        add(spaces, {
+          x = x,
+          y = y
+        })
       end
     end
-  else
-    return
   end
 
   add(breadcrumb, {
@@ -867,20 +868,22 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb)
   g_breadcrumbs[x][y] = copy(breadcrumb)
 
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
+    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
+    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
+    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb))
+    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), spaces)
   end
+
+  return spaces
 end
 
 function validspace(x, y, steps, obstacles)

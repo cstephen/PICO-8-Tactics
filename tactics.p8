@@ -269,10 +269,7 @@ end
 
 function movespace()
   for space in all(g_spaces) do
-    local maxspaces = explorerange(space.x, space.y, g_chosen.attackmax, nil, {"good"}, {}, false)
-    local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false)
-    local attackspaces = subtractspaces(maxspaces, minspaces)
-
+    local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false)
     if #attackspaces == 1 then
       return space
     end
@@ -797,10 +794,7 @@ function move(x, y, friendlies, enemies)
 end
 
 function exploreattacks(targets)
-  local maxspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmax, 253, targets, {}, true)
-  local minspaces = explorerange(g_chosen.x, g_chosen.y, g_chosen.attackmin, 0, targets, {}, true)
-  local attackspaces = subtractspaces(maxspaces, minspaces)
-
+  local attackspaces = minmaxrange(g_chosen.x, g_chosen.y, g_chosen.attackmin, g_chosen.attackmax, 0, 253, targets, {}, true)
   if #attackspaces > 0 then
     if g_playerturn == true then
       g_attacking = true
@@ -836,9 +830,7 @@ function attack(target)
     counteralignment = {"good"}
   end
 
-  local maxspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmax, 253, counteralignment, {}, true)
-  local minspaces = explorerange(g_enemy.x, g_enemy.y, g_enemy.attackmin, 0, counteralignment, {}, true)
-  local g_spaces = subtractspaces(maxspaces, minspaces)
+  local g_spaces = minmaxrange(g_enemy.x, g_enemy.y, g_enemy.attackmin, g_enemy.attackmax, 0, 253, counteralignment, {}, true)
 
   if validmove() then
     g_battleanimation.counterattack = true
@@ -855,6 +847,12 @@ function explorerange(x, y, steps, sprite, alignments, obstacles, storebreadcrum
   g_valid = {}
   spaces = {}
   return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, storebreadcrumb, spaces)
+end
+
+function minmaxrange(x, y, min, max, minsprite, maxsprite, targets, obstacles, storebreadcrumb)
+  local maxspaces = explorerange(x, y, max, maxsprite, targets, obstacles, storebreadcrumb)
+  local minspaces = explorerange(x, y, min, minsprite, targets, obstacles, storebreadcrumb)
+  return subtractspaces(maxspaces, minspaces)
 end
 
 function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, storebreadcrumb, spaces)

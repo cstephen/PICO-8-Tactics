@@ -832,10 +832,11 @@ function attack(target)
 
   local g_spaces = minmaxrange(g_enemy.x, g_enemy.y, g_enemy.attackmin, g_enemy.attackmax, 0, 253, counteralignment, {}, true)
 
-  if validmove() then
-    g_battleanimation.counterattack = true
-  else
-    g_battleanimation.counterattack = false
+  g_battleanimation.counterattack = false
+  for space in all(g_spaces) do
+    if space.x == g_chosen.x and space.y == g_chosen.y then
+      g_battleanimation.counterattack = true
+    end
   end
 
   gridclear(g_bg, {sprite = 0})

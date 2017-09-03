@@ -459,8 +459,8 @@ function battleanimate()
 
   local frame = g_battleanimation.frame
   local counterattack = g_battleanimation.counterattack
-  local friendly = g_battleanimation.friendly
-  local enemy = g_battleanimation.enemy
+  local good = g_battleanimation.good
+  local evil = g_battleanimation.evil
 
   local statpos = {
     good = {
@@ -490,18 +490,18 @@ function battleanimate()
   if frame <= 30 then
     zoom(0, 1)
   elseif frame > 60 and frame <= 63 then
-    nudge("friendly", 1)
+    nudge(good.alignment, 1)
   elseif frame > 63 and frame <= 66 then
-    damage("enemy")
-    nudge("friendly", -1)
+    damage(evil.alignment)
+    nudge(good.alignment, -1)
   elseif frame > 81 and frame <= 83 then
     if counterattack == true then
-      nudge("enemy", -1)
+      nudge(evil.alignment, -1)
     end
   elseif frame > 83 and frame <= 86 then
     if counterattack == true then
-      damage("friendly")
-      nudge("enemy", 1)
+      damage(good.alignment)
+      nudge(evil.alignment, 1)
     end
   elseif frame > 116 and frame <= 146 then
     zoom(116, -1)
@@ -509,13 +509,13 @@ function battleanimate()
     if g_chosen.hp == 0 then
       die(g_chosen)
     else
-      g_chosen.sprite = friendly.sprite
+      g_chosen.sprite = good.sprite
     end
 
     if g_enemy.hp == 0 then
       die(g_enemy)
     else
-      g_enemy.sprite = enemy.sprite
+      g_enemy.sprite = evil.sprite
     end
 
     g_battleanimation = nil
@@ -530,11 +530,11 @@ function battleanimate()
     return
   end
 
-  local pos = spritepos(friendly.sprite)
-  sspr(pos.x * 8, pos.y * 8, 8, 8, friendly.move.x, friendly.move.y, friendly.size.x, friendly.size.y)
+  local pos = spritepos(good.sprite)
+  sspr(pos.x * 8, pos.y * 8, 8, 8, good.move.x, good.move.y, good.size.x, good.size.y)
 
-  pos = spritepos(enemy.sprite)
-  sspr(pos.x * 8, pos.y * 8, 8, 8, enemy.move.x, enemy.move.y, enemy.size.x, enemy.size.y)
+  pos = spritepos(evil.sprite)
+  sspr(pos.x * 8, pos.y * 8, 8, 8, evil.move.x, evil.move.y, evil.size.x, evil.size.y)
 end
 
 function zoom(baseframe, direction)
@@ -559,24 +559,24 @@ function zoom(baseframe, direction)
 
   local scale = 8 + 8 * (progress / 15)
 
-  g_battleanimation.friendly.size = {
+  g_battleanimation.good.size = {
     x = scale,
     y = scale
   }
 
-  g_battleanimation.friendly.move = {
-    x = ((g_chosen.x - g_mapcorner.x) * 8 + (((zoompos[g_chosen.alignment].x - (g_chosen.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.friendly.size.x / 2 + 4,
-    y = ((g_chosen.y - g_mapcorner.y) * 8 + (((zoompos[g_chosen.alignment].y - (g_chosen.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.friendly.size.y / 2 + 4
+  g_battleanimation.good.move = {
+    x = ((g_chosen.x - g_mapcorner.x) * 8 + (((zoompos[g_chosen.alignment].x - (g_chosen.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.good.size.x / 2 + 4,
+    y = ((g_chosen.y - g_mapcorner.y) * 8 + (((zoompos[g_chosen.alignment].y - (g_chosen.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.good.size.y / 2 + 4
   }
 
-  g_battleanimation.enemy.size = {
+  g_battleanimation.evil.size = {
     x = scale,
     y = scale
   }
 
-  g_battleanimation.enemy.move = {
-    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((zoompos[g_enemy.alignment].x - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.enemy.size.x / 2 + 4,
-    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((zoompos[g_enemy.alignment].y - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.enemy.size.y / 2 + 4
+  g_battleanimation.evil.move = {
+    x = ((g_enemy.x - g_mapcorner.x) * 8 + (((zoompos[g_enemy.alignment].x - (g_enemy.x - g_mapcorner.x) * 8) / 30) * progress)) - g_battleanimation.evil.size.x / 2 + 4,
+    y = ((g_enemy.y - g_mapcorner.y) * 8 + (((zoompos[g_enemy.alignment].y - (g_enemy.y - g_mapcorner.y) * 8) / 30) * progress)) - g_battleanimation.evil.size.y / 2 + 4
   }
 end
 
@@ -588,13 +588,13 @@ function nudge(alignment, direction)
 end
 
 function damage(alignment)
-  if alignment == "friendly"
+  if alignment == "good"
   and g_enemy.hp > 0 then
     g_chosen.hp -= g_enemy.might / 3
     if g_chosen.hp < 1 then
       g_chosen.hp = 0
     end
-  elseif alignment == "enemy"
+  elseif alignment == "evil"
   and g_chosen.hp > 0 then
     g_enemy.hp -= g_chosen.might / 3
     if g_enemy.hp < 1 then
@@ -815,11 +815,13 @@ function attack(target)
 
   g_battleanimation = {
     frame = 0,
-    friendly = {
-      sprite = g_chosen.sprite
+    good = {
+      sprite = g_chosen.sprite,
+      alignment = g_chosen.alignment
     },
-    enemy = {
-      sprite = g_enemy.sprite
+    evil = {
+      sprite = g_enemy.sprite,
+      alignment = g_enemy.alignment
     }
   }
 

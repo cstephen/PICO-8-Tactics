@@ -487,21 +487,28 @@ function battleanimate()
     showstats(g_enemy, enemystats)
   end
 
+  local nudgefactor
+  if good.alignment == "good" then
+    nudgefactor = 1
+  else
+    nudgefactor = -1
+  end
+
   if frame <= 30 then
     zoom(0, 1)
   elseif frame > 60 and frame <= 63 then
-    nudge(good.alignment, 1)
+    nudge("good", 1 * nudgefactor)
   elseif frame > 63 and frame <= 66 then
-    damage(evil.alignment)
-    nudge(good.alignment, -1)
+    damage("evil")
+    nudge("good", -1 * nudgefactor)
   elseif frame > 81 and frame <= 83 then
     if counterattack == true then
-      nudge(evil.alignment, -1)
+      nudge("evil", -1 * nudgefactor)
     end
   elseif frame > 83 and frame <= 86 then
     if counterattack == true then
-      damage(good.alignment)
-      nudge(evil.alignment, 1)
+      damage("good")
+      nudge("evil", 1 * nudgefactor)
     end
   elseif frame > 116 and frame <= 146 then
     zoom(116, -1)

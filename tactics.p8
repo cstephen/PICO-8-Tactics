@@ -260,7 +260,7 @@ end
 
 function validmove()
   for space in all(g_spaces) do
-    if g_select.x == space.x and g_select.y == space.y then
+    if g_select.x == space.x and g_select.y == space.y and g_typemask[g_select.x][g_select.y] == "neutral" then
       return true
     end
   end

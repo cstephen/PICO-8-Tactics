@@ -502,11 +502,11 @@ function battleanimate()
     damage("evil")
     nudge("good", -1 * nudgefactor)
   elseif frame > 81 and frame <= 83 then
-    if counterattack == true then
+    if counterattack == true and g_enemy.hp > 0 then
       nudge("evil", -1 * nudgefactor)
     end
   elseif frame > 83 and frame <= 86 then
-    if counterattack == true then
+    if counterattack == true and g_enemy.hp > 0 then
       damage("good")
       nudge("evil", 1 * nudgefactor)
     end

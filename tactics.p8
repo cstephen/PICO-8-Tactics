@@ -77,9 +77,7 @@ g_knight = {
   attackmax = 1,
   might = 3,
   maxhp = 10,
-  hp = 10,
-  xp = 0,
-  level = 1
+  hp = 10
 }
 
 g_dwarf = {
@@ -89,9 +87,7 @@ g_dwarf = {
   attackmax = 1,
   might = 4,
   maxhp = 15,
-  hp = 15,
-  xp = 0,
-  level = 1
+  hp = 15
 }
 
 g_lancer = {
@@ -101,9 +97,7 @@ g_lancer = {
   attackmax = 2,
   might = 2,
   maxhp = 10,
-  hp = 10,
-  xp = 0,
-  level = 1
+  hp = 10
 }
 
 g_archer = {
@@ -113,9 +107,7 @@ g_archer = {
   attackmax = 2,
   might = 1,
   maxhp = 5,
-  hp = 5,
-  xp = 0,
-  level = 1
+  hp = 5
 }
 
 function _init()
@@ -127,10 +119,10 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.good, createunit(g_knight, "good", 18, 0))
-  add(g_units.good, createunit(g_archer, "good", 18, 3))
-  add(g_units.evil, createunit(g_dwarf, "evil", 19, 1))
-  add(g_units.evil, createunit(g_archer, "evil", 19, 2))
+  add(g_units.good, createunit(g_knight, 1, "good", 18, 0))
+  add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 19, 1))
+  add(g_units.evil, createunit(g_archer, 1, "evil", 19, 2))
 end
 
 function _update()
@@ -601,15 +593,21 @@ end
 function damage(alignment)
   if alignment == "good"
   and g_enemy.hp > 0 then
-    g_chosen.hp -= g_enemy.might / 3
+    g_chosen.hp -= g_enemy.might / 3 * g_enemy.level
     if g_chosen.hp < 1 then
       g_chosen.hp = 0
     end
   elseif alignment == "evil"
   and g_chosen.hp > 0 then
-    g_enemy.hp -= g_chosen.might / 3
+    g_enemy.hp -= g_chosen.might / 3 * g_chosen.level
+    g_chosen.xp += g_enemy.level
     if g_enemy.hp < 1 then
       g_enemy.hp = 0
+      g_chosen.xp += g_enemy.level * 2
+    end
+    if g_chosen.xp >= 5 * g_chosen.level then
+      g_chosen.xp = 0
+      g_chosen.level += 1
     end
   end
 end
@@ -664,19 +662,21 @@ end
 
 function showstats(unit, screen)
   statprint(unit.name, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
-  statprint("lvl: 1", screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
+  statprint("lvl: " .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
 end
 
-function createunit(base, alignment, x, y)
+function createunit(base, level, alignment, x, y)
   local new = copy(base)
+  new.sprite = g_sprites[base.name][alignment]
+  new.level = level
+  new.alignment = alignment
   new.x = x
   new.y = y
-  new.alignment = alignment
-  new.sprite = g_sprites[base.name][alignment]
-  g_typemask[x][y] = alignment
+  new.xp = 0
   new.moving = false
   new.actionover = false
+  g_typemask[x][y] = alignment
   return new
 end
 

@@ -218,13 +218,13 @@ function playerturn()
     and g_attacking == false
     and g_valid[g_select.x] != nil
     and g_valid[g_select.x][g_select.y] != nil then
-      if validmove()
+      if validaction("move")
       or (g_select.x == g_chosen.x and g_select.y == g_chosen.y) then
         move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_friendlymoving == false
     and g_attacking == true then
-      if validmove() then
+      if validaction("attack") then
         attack({
           x = g_select.x,
           y = g_select.y
@@ -258,10 +258,14 @@ function playerturn()
   end
 end
 
-function validmove()
+function validaction(type)
   for space in all(g_spaces) do
-    if g_select.x == space.x and g_select.y == space.y and g_typemask[g_select.x][g_select.y] == "neutral" then
-      return true
+    if g_select.x == space.x and g_select.y == space.y then
+      if type == "move" and g_typemask[g_select.x][g_select.y] == "neutral" then
+        return true
+      elseif type == "attack" then
+        return true
+      end
     end
   end
   return false

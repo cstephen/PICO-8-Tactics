@@ -121,8 +121,18 @@ function _init()
 
   add(g_units.good, createunit(g_knight, 1, "good", 18, 0))
   add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
+  add(g_units.good, createunit(g_knight, 1, "good", 19, 0))
+  add(g_units.good, createunit(g_archer, 1, "good", 20, 3))
   add(g_units.evil, createunit(g_dwarf, 1, "evil", 19, 1))
   add(g_units.evil, createunit(g_archer, 1, "evil", 19, 2))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 20, 1))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 20, 2))
+  add(g_units.evil, createunit(g_archer, 1, "evil", 21, 1))
+  add(g_units.evil, createunit(g_archer, 1, "evil", 21, 2))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 22, 1))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 22, 2))
+  add(g_units.evil, createunit(g_archer, 1, "evil", 23, 2))
+  add(g_units.evil, createunit(g_archer, 1, "evil", 23, 1))
 end
 
 function _update()
@@ -265,9 +275,11 @@ end
 
 function movespace()
   for space in all(g_spaces) do
-    local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false)
-    if #attackspaces == 1 then
-      return space
+    if g_typemask[space.x][space.y] == "neutral" then
+      local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false)
+      if #attackspaces == 1 then
+        return space
+      end
     end
   end
 
@@ -279,7 +291,19 @@ function attackspace()
 end
 
 function randomspace()
-  return g_spaces[flr(rnd(#g_spaces)) + 1]
+  local attempted = {}
+  while #attempted < #g_spaces do
+    local random = flr(rnd(#g_spaces))
+    if inarray(random, attempted) == false then
+      add(attempted, random)
+      local space = g_spaces[flr(rnd(#g_spaces)) + 1]
+      if space.x == g_chosen.x and space.y == g_chosen.y then
+        return space
+      elseif g_typemask[space.x][space.y] != "evil" then
+        return space
+      end
+    end
+  end
 end
 
 function enemyturn()
@@ -307,6 +331,15 @@ function copy(src)
     dest[key] = value
   end
   return dest
+end
+
+function inarray(needle, haystack)
+  for item in all(haystack) do
+    if item == needle then
+      return true
+    end
+  end
+  return false
 end
 
 function subtractspaces(sequence1, sequence2)

@@ -18,6 +18,7 @@ g_playerturn = true
 g_spaces = nil
 
 g_portals = {}
+g_portaltimer = 0
 
 g_units = {
   good = {},
@@ -127,19 +128,12 @@ function _init()
   add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
   add(g_units.good, createunit(g_knight, 1, "good", 19, 0))
   add(g_units.good, createunit(g_archer, 1, "good", 20, 3))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 19, 1))
-  add(g_units.evil, createunit(g_archer, 1, "evil", 19, 2))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 20, 1))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 20, 2))
-  add(g_units.evil, createunit(g_archer, 1, "evil", 21, 1))
-  add(g_units.evil, createunit(g_archer, 1, "evil", 21, 2))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 22, 1))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 22, 2))
-  add(g_units.evil, createunit(g_archer, 1, "evil", 23, 2))
-  add(g_units.evil, createunit(g_archer, 1, "evil", 23, 1))
+  add(g_units.evil, createunit(g_dwarf, 1, "evil", 28, 16))
 end
 
 function _update()
+  portalspawn()
+
   if g_playerturn == true then
     playerturn()
   else
@@ -682,6 +676,7 @@ function endturn()
     if g_turnover == true then
       g_playerturn = false
       g_friendlymoving = false
+      g_portaltimer += 1
 
       for unit in all(g_units.evil) do
         unit.actionover = false
@@ -717,6 +712,17 @@ function createportal(x, y)
     y = y
   })
   g_typemask[x][y] = "portal"
+end
+
+function portalspawn()
+  for portal in all(g_portals) do
+    if g_portaltimer == 2 then
+      local xspawn = portal.x + flr(rnd(2)) - 1
+      local yspawn = portal.y + flr(rnd(2)) - 1
+      add(g_units.evil, createunit(g_dwarf, 1, "evil", xspawn, yspawn))
+      g_portaltimer = 0
+    end
+  end
 end
 
 function createunit(base, level, alignment, x, y)

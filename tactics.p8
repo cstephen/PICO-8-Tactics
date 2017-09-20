@@ -709,6 +709,12 @@ function createunit(base, level, alignment, x, y)
   new.xp = 0
   new.moving = false
   new.actionover = false
+
+  if alignment == "evil" then
+    new.hp = flr(new.hp / 2);
+    new.might = flr(new.might / 2)
+  end
+
   g_typemask[x][y] = alignment
   return new
 end

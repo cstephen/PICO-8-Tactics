@@ -296,10 +296,12 @@ function randomspace()
     if inarray(random, attempted) == false then
       add(attempted, random)
       local space = g_spaces[flr(rnd(#g_spaces)) + 1]
-      if space.x == g_chosen.x and space.y == g_chosen.y then
-        return space
-      elseif g_typemask[space.x][space.y] != "evil" then
-        return space
+      if g_typemask[space.x][space.y] != "portal" then
+        if space.x == g_chosen.x and space.y == g_chosen.y then
+          return space
+        elseif g_typemask[space.x][space.y] != "evil" then
+          return space
+        end
       end
     end
   end

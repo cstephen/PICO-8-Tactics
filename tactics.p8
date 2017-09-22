@@ -719,9 +719,7 @@ end
 function portalspawn()
   for portal in all(g_portals) do
     if g_portaltimer == 2 then
-      local xspawn = portal.x + flr(rnd(2)) - 1
-      local yspawn = portal.y + flr(rnd(2)) - 1
-      add(g_units.evil, createunit(g_dwarf, 1, "evil", xspawn, yspawn))
+      add(g_units.evil, createunit(g_dwarf, 1, "evil", portal.x, portal.y))
       g_portaltimer = 0
     end
   end

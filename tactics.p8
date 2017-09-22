@@ -117,10 +117,12 @@ function _init()
   g_bg = gridinit()
   g_breadcrumbs = gridinit()
   g_typemask = gridinit()
+  g_portalmask = gridinit()
 
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
+  gridclear(g_portalmask, false)
 
   createportal(24, 8)
 
@@ -296,7 +298,7 @@ function randomspace()
     if inarray(random, attempted) == false then
       add(attempted, random)
       local space = g_spaces[flr(rnd(#g_spaces)) + 1]
-      if g_typemask[space.x][space.y] != "portal" then
+      if g_portalmask[space.x][space.y] == false then
         if space.x == g_chosen.x and space.y == g_chosen.y then
           return space
         elseif g_typemask[space.x][space.y] != "evil" then
@@ -305,6 +307,10 @@ function randomspace()
       end
     end
   end
+  return {
+    x = g_chosen.x,
+    y = g_chosen.y
+  }
 end
 
 function enemyturn()
@@ -713,7 +719,7 @@ function createportal(x, y)
     x = x,
     y = y
   })
-  g_typemask[x][y] = "portal"
+  g_portalmask[x][y] = true
 end
 
 function portalspawn()

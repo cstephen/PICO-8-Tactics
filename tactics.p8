@@ -129,7 +129,6 @@ function _init()
   add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
   add(g_units.good, createunit(g_knight, 1, "good", 19, 0))
   add(g_units.good, createunit(g_archer, 1, "good", 20, 3))
-  add(g_units.evil, createunit(g_dwarf, 1, "evil", 28, 16))
 end
 
 function _update()
@@ -313,7 +312,10 @@ function randomspace()
 end
 
 function enemyturn()
-  if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
+  if #g_units.evil == 0 then
+    g_enemyattacking = false
+    endturn()
+  elseif g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
       if unit.actionover == false then
         g_chosen = getunit(unit.x, unit.y)

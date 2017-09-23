@@ -8,7 +8,6 @@ g_friendlymoving = false
 g_enemymoving = false
 g_attacking = false
 g_enemyattacking = false
-g_enemyendturn = false
 g_back = false
 g_turnover = false
 g_gridsize = {x = 128, y = 32}
@@ -314,7 +313,7 @@ function randomspace()
 end
 
 function enemyturn()
-  if g_enemymoving == false and g_enemyattacking == false and g_enemyendturn == false and g_battleanimation == nil then
+  if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
       if unit.actionover == false then
         g_chosen = getunit(unit.x, unit.y)
@@ -325,7 +324,7 @@ function enemyturn()
         return
       end
     end
-  elseif g_enemymoving == false and g_enemyattacking == true and g_enemyendturn == false then
+  elseif g_enemymoving == false and g_enemyattacking == true then
     attack(attackspace())
     g_enemyattacking = false
     g_chosen.actionover = true

@@ -15,7 +15,6 @@ g_alternate = 20
 g_moveanimation = nil
 g_playerturn = true
 g_spaces = nil
-g_portaltimer = 0
 
 g_units = {
   good = {},
@@ -81,7 +80,9 @@ g_portal = {
   attackmax = 0,
   might = 0,
   maxhp = 50,
-  hp = 50
+  hp = 50,
+  maxtimer = 5,
+  timer = 5
 }
 
 g_knight = {
@@ -142,8 +143,6 @@ function _init()
 end
 
 function _update()
-  portalspawn()
-
   if g_playerturn == true then
     playerturn()
   else
@@ -704,7 +703,6 @@ function endturn()
     if g_turnover == true then
       g_playerturn = false
       g_friendlymoving = false
-      g_portaltimer += 1
 
       for unit in all(g_units.evil) do
         unit.actionover = false
@@ -724,6 +722,8 @@ function endturn()
       for unit in all(g_units.good) do
         unit.actionover = false
       end
+
+      portalspawn()
     end
   end
 end
@@ -736,9 +736,12 @@ end
 
 function portalspawn()
   for unit in all(g_units.evil) do
-    if unit.type == "portal" and g_portaltimer == 100 then
-      add(g_units.evil, createunit(g_dwarf, 1, "evil", 24, 8))
-      g_portaltimer = 0
+    if unit.type == "portal" then
+      unit.timer -= 1
+      if unit.timer == 0 then
+        add(g_units.evil, createunit(g_dwarf, 1, "evil", unit.x, unit.y))
+        unit.timer = unit.maxtimer
+      end
     end
   end
 end
@@ -758,6 +761,11 @@ function createunit(base, level, alignment, x, y)
   if alignment == "evil" then
     new.hp = flr(new.hp / 2);
     new.might = flr(new.might / 2)
+  end
+
+  if base.type == "portal" then
+    new.maxtimer = base.maxtimer
+    new.timer = base.timer
   end
 
   g_typemask[x][y] = alignment

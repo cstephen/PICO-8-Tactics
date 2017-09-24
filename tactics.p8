@@ -215,7 +215,7 @@ function playerturn()
   if btnp(4) and g_moveanimation == nil then
     if g_friendlymoving == false
     and g_attacking == false then
-      g_chosen = getunit(g_select.x, g_select.y)
+      g_chosen = getunit(g_select.x, g_select.y)[1]
       if g_chosen != nil
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
@@ -302,7 +302,7 @@ function randomspace()
     if inarray(random, attempted) == false then
       add(attempted, random)
       local space = g_spaces[flr(rnd(#g_spaces)) + 1]
-      if space.x == g_chosen.x and space.y == g_chosen.y then
+      if space.x == g_chosen.x and space.y == g_chosen.y and #getunit(space.x, space.y) == 1 then
         return space
       elseif g_typemask[space.x][space.y] != "evil" then
         return space
@@ -499,7 +499,7 @@ function selectdraw()
 
   spr(255, screenpos.x * 8, screenpos.y * 8)
 
-  local unit = getunit(g_select.x, g_select.y)
+  local unit = getunit(g_select.x, g_select.y)[1]
   if unit != nil then
     local screen = {
       pos = {
@@ -801,14 +801,15 @@ function moveunit(unit, x, y)
 end
 
 function getunit(x, y)
+  local found = {}
   for alignment, units in pairs(g_units) do
     for unit in all(units) do
       if unit.x == x and unit.y == y then
-        return unit
+        add(found, unit)
       end
     end
   end
-  return nil
+  return found
 end
 
 function exploremoves(x, y, passable, obstacles)
@@ -924,7 +925,7 @@ function exploreattacks(targets)
 end
 
 function attack(target)
-  g_enemy = getunit(target.x, target.y)
+  g_enemy = getunit(target.x, target.y)[1]
 
   gridclear(g_bg, {sprite = 0})
 

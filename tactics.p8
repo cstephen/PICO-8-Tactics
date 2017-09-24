@@ -15,8 +15,6 @@ g_alternate = 20
 g_moveanimation = nil
 g_playerturn = true
 g_spaces = nil
-
-g_portals = {}
 g_portaltimer = 0
 
 g_units = {
@@ -69,7 +67,21 @@ g_sprites = {
   archer = {
     good = 4,
     evil = 20
+  },
+  portal = {
+    good = 0,
+    evil = 64
   }
+}
+
+g_portal = {
+  name = "portal",
+  speed = 0,
+  attackmin = 0,
+  attackmax = 0,
+  might = 0,
+  maxhp = 50,
+  hp = 50
 }
 
 g_knight = {
@@ -121,10 +133,8 @@ function _init()
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
-  gridclear(g_portalmask, false)
 
-  createportal(24, 8)
-
+  add(g_units.evil, createunit(g_portal, 1, "evil", 24, 8))
   add(g_units.good, createunit(g_knight, 1, "good", 18, 0))
   add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
   add(g_units.good, createunit(g_knight, 1, "good", 19, 0))
@@ -296,12 +306,10 @@ function randomspace()
     if inarray(random, attempted) == false then
       add(attempted, random)
       local space = g_spaces[flr(rnd(#g_spaces)) + 1]
-      if g_portalmask[space.x][space.y] == false then
-        if space.x == g_chosen.x and space.y == g_chosen.y then
-          return space
-        elseif g_typemask[space.x][space.y] != "evil" then
-          return space
-        end
+      if space.x == g_chosen.x and space.y == g_chosen.y then
+        return space
+      elseif g_typemask[space.x][space.y] != "evil" then
+        return space
       end
     end
   end
@@ -312,13 +320,24 @@ function randomspace()
 end
 
 function enemyturn()
-  if #g_units.evil == 0 then
-    g_enemyattacking = false
+  local turnover = true
+  for unit in all(g_units.evil) do
+    if unit.type == "portal" then
+      unit.actionover = true
+    elseif unit.actionover == false then
+      turnover = false
+    end
+  end
+
+  if turnover == true then
     endturn()
-  elseif g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
+    return
+  end
+
+  if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
       if unit.actionover == false then
-        g_chosen = getunit(unit.x, unit.y)
+        g_chosen = unit
         g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
         g_select = movespace()
         g_enemymoving = true
@@ -715,18 +734,10 @@ function showstats(unit, screen)
   statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
 end
 
-function createportal(x, y)
-  add(g_portals, {
-    x = x,
-    y = y
-  })
-  g_portalmask[x][y] = true
-end
-
 function portalspawn()
-  for portal in all(g_portals) do
-    if g_portaltimer == 2 then
-      add(g_units.evil, createunit(g_dwarf, 1, "evil", portal.x, portal.y))
+  for unit in all(g_units.evil) do
+    if unit.type == "portal" and g_portaltimer == 100 then
+      add(g_units.evil, createunit(g_dwarf, 1, "evil", 24, 8))
       g_portaltimer = 0
     end
   end
@@ -735,6 +746,7 @@ end
 function createunit(base, level, alignment, x, y)
   local new = copy(base)
   new.sprite = g_sprites[base.name][alignment]
+  new.type = base.name
   new.level = level
   new.alignment = alignment
   new.x = x

@@ -699,6 +699,7 @@ function endturn()
         g_turnover = false
       end
     end
+
     if g_turnover == true then
       g_playerturn = false
       g_friendlymoving = false
@@ -707,12 +708,18 @@ function endturn()
         unit.actionover = false
       end
     end
+
+    g_lastselect = {
+      x = g_select.x,
+      y = g_select.y
+    }
   else
     for unit in all(g_units.evil) do
       if unit.actionover == false then
         g_turnover = false
       end
     end
+
     if g_turnover == true then
       g_playerturn = true
       g_friendlymoving = false
@@ -727,6 +734,11 @@ function endturn()
       for unit in all(g_units.good) do
         unit.actionover = false
       end
+
+      g_select = {
+        x = g_lastselect.x,
+        y = g_lastselect.y
+      }
     end
   end
 end

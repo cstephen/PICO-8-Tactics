@@ -81,7 +81,7 @@ g_portal = {
   might = 0,
   maxhp = 50,
   hp = 50,
-  maxtimer = 5,
+  maxtimer = 6,
   timer = 5
 }
 
@@ -137,9 +137,6 @@ function _init()
 
   add(g_units.evil, createunit(g_portal, 1, "evil", 24, 8))
   add(g_units.good, createunit(g_knight, 1, "good", 18, 0))
-  add(g_units.good, createunit(g_archer, 1, "good", 18, 3))
-  add(g_units.good, createunit(g_knight, 1, "good", 19, 0))
-  add(g_units.good, createunit(g_archer, 1, "good", 20, 3))
 end
 
 function _update()
@@ -319,6 +316,8 @@ function randomspace()
 end
 
 function enemyturn()
+  portalspawn()
+
   local turnover = true
   for unit in all(g_units.evil) do
     if unit.type == "portal" then
@@ -719,11 +718,15 @@ function endturn()
       g_friendlymoving = false
       g_attacking = false
 
+      for unit in all(g_units.evil) do
+        if unit.type == "portal" then
+          unit.timer -= 1
+        end
+      end
+
       for unit in all(g_units.good) do
         unit.actionover = false
       end
-
-      portalspawn()
     end
   end
 end
@@ -736,12 +739,9 @@ end
 
 function portalspawn()
   for unit in all(g_units.evil) do
-    if unit.type == "portal" then
-      unit.timer -= 1
-      if unit.timer == 0 then
-        add(g_units.evil, createunit(g_dwarf, 1, "evil", unit.x, unit.y))
-        unit.timer = unit.maxtimer
-      end
+    if unit.type == "portal" and unit.timer == 1 then
+      unit.timer = unit.maxtimer
+      add(g_units.evil, createunit(g_dwarf, 1, "evil", unit.x, unit.y))
     end
   end
 end

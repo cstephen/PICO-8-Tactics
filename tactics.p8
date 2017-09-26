@@ -333,6 +333,23 @@ function enemyturn()
   if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
       if unit.actionover == false then
+        g_mapcorner = {
+          x = unit.x - 8,
+          y = unit.y - 8
+        }
+
+        if g_mapcorner.x < 0 then
+          g_mapcorner.x = 0
+        elseif g_mapcorner.x + 16 > 127 then
+          g_mapcorner.x = 111
+        end
+
+        if g_mapcorner.y < 0 then
+          g_mapcorner.y = 0
+        elseif g_mapcorner.y + 16 > 63 then
+          g_mapcorner.y = 47
+        end
+
         g_chosen = unit
         g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"good"})
         g_select = movespace()
@@ -721,6 +738,11 @@ function endturn()
       x = g_select.x,
       y = g_select.y
     }
+
+    g_lastmapcorner = {
+      x = g_mapcorner.x,
+      y = g_mapcorner.y,
+    }
   else
     for unit in all(g_units.evil) do
       if unit.actionover == false then
@@ -746,6 +768,11 @@ function endturn()
       g_select = {
         x = g_lastselect.x,
         y = g_lastselect.y
+      }
+
+      g_mapcorner = {
+        x = g_lastmapcorner.x,
+        y = g_lastmapcorner.y
       }
     end
   end

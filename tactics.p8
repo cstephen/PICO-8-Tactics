@@ -806,7 +806,9 @@ function moveunit(unit, x, y)
     y = y
   })
   unit.moving = false
-  g_typemask[g_lastspace.x][g_lastspace.y] = "neutral"
+  if #getunit(g_lastspace.x, g_lastspace.y) == 0 then
+    g_typemask[g_lastspace.x][g_lastspace.y] = "neutral"
+  end
   g_typemask[x][y] = unit.alignment
 end
 

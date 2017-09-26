@@ -73,56 +73,54 @@ g_sprites = {
   }
 }
 
-g_portal = {
-  name = "portal",
-  speed = 0,
-  attackmin = 0,
-  attackmax = 0,
-  might = 0,
-  maxhp = 50,
-  hp = 50,
-  maxtimer = 6,
-  timer = 5
-}
-
-g_knight = {
-  name = "knight",
-  speed = 2,
-  attackmin = 0,
-  attackmax = 1,
-  might = 3,
-  maxhp = 10,
-  hp = 10
-}
-
-g_dwarf = {
-  name = "dwarf",
-  speed = 2,
-  attackmin = 0,
-  attackmax = 1,
-  might = 4,
-  maxhp = 15,
-  hp = 15
-}
-
-g_lancer = {
-  name = "lancer",
-  speed = 3,
-  attackmin = 0,
-  attackmax = 2,
-  might = 2,
-  maxhp = 10,
-  hp = 10
-}
-
-g_archer = {
-  name = "archer",
-  speed = 4,
-  attackmin = 1,
-  attackmax = 2,
-  might = 1,
-  maxhp = 5,
-  hp = 5
+g_archetypes = {
+  portal = {
+    name = "portal",
+    speed = 0,
+    attackmin = 0,
+    attackmax = 0,
+    might = 0,
+    maxhp = 50,
+    hp = 50,
+    maxtimer = 6,
+    timer = 5
+  },
+  knight = {
+    name = "knight",
+    speed = 2,
+    attackmin = 0,
+    attackmax = 1,
+    might = 3,
+    maxhp = 10,
+    hp = 10
+  },
+  dwarf = {
+    name = "dwarf",
+    speed = 2,
+    attackmin = 0,
+    attackmax = 1,
+    might = 4,
+    maxhp = 15,
+    hp = 15
+  },
+  lancer = {
+    name = "lancer",
+    speed = 3,
+    attackmin = 0,
+    attackmax = 2,
+    might = 2,
+    maxhp = 10,
+    hp = 10
+  },
+  archer = {
+    name = "archer",
+    speed = 4,
+    attackmin = 1,
+    attackmax = 2,
+    might = 1,
+    maxhp = 5,
+    hp = 5
+  }
 }
 
 function _init()
@@ -135,8 +133,8 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.evil, createunit(g_portal, 1, "evil", 24, 8))
-  add(g_units.good, createunit(g_knight, 1, "good", 18, 0))
+  add(g_units.evil, createunit("portal", 1, "evil", 24, 8))
+  add(g_units.good, createunit("knight", 1, "good", 18, 0))
 end
 
 function _update()
@@ -753,15 +751,15 @@ function portalspawn()
   for unit in all(g_units.evil) do
     if unit.type == "portal" and unit.timer == 1 then
       unit.timer = unit.maxtimer
-      add(g_units.evil, createunit(g_dwarf, 1, "evil", unit.x, unit.y))
+      add(g_units.evil, createunit("dwarf", 1, "evil", unit.x, unit.y))
     end
   end
 end
 
-function createunit(base, level, alignment, x, y)
-  local new = copy(base)
-  new.sprite = g_sprites[base.name][alignment]
-  new.type = base.name
+function createunit(type, level, alignment, x, y)
+  local new = copy(g_archetypes[type])
+  new.sprite = g_sprites[type][alignment]
+  new.type = type
   new.level = level
   new.alignment = alignment
   new.x = x
@@ -775,9 +773,9 @@ function createunit(base, level, alignment, x, y)
     new.might = flr(new.might / 2)
   end
 
-  if base.type == "portal" then
-    new.maxtimer = base.maxtimer
-    new.timer = base.timer
+  if type == "portal" then
+    new.maxtimer = g_archetypes[type].maxtimer
+    new.timer = g_archetypes[type].timer
   end
 
   g_typemask[x][y] = alignment

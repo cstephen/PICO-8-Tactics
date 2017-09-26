@@ -752,7 +752,7 @@ function endturn()
 end
 
 function showstats(unit, screen)
-  statprint(unit.name, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
+  statprint(unit.type, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
   statprint("lvl: " .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
 end

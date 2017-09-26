@@ -351,6 +351,14 @@ function copy(src)
   return dest
 end
 
+function getkeys(src)
+  local keys = {}
+  for key, value in pairs(src) do
+    add(keys, key)
+  end
+  return keys
+end
+
 function inarray(needle, haystack)
   for item in all(haystack) do
     if item == needle then
@@ -746,7 +754,9 @@ function portalspawn()
   for unit in all(g_units.evil) do
     if unit.type == "portal" and unit.timer == 1 then
       unit.timer = unit.maxtimer
-      add(g_units.evil, createunit("dwarf", 1, "evil", unit.x, unit.y))
+      local keys = getkeys(g_archetypes)
+      local index = flr(rnd(#keys)) + 1
+      add(g_units.evil, createunit(keys[index], 1, "evil", unit.x, unit.y))
     end
   end
 end

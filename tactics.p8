@@ -75,7 +75,6 @@ g_sprites = {
 
 g_archetypes = {
   portal = {
-    name = "portal",
     speed = 0,
     attackmin = 0,
     attackmax = 0,
@@ -86,7 +85,6 @@ g_archetypes = {
     timer = 5
   },
   knight = {
-    name = "knight",
     speed = 2,
     attackmin = 0,
     attackmax = 1,
@@ -95,7 +93,6 @@ g_archetypes = {
     hp = 10
   },
   dwarf = {
-    name = "dwarf",
     speed = 2,
     attackmin = 0,
     attackmax = 1,
@@ -104,7 +101,6 @@ g_archetypes = {
     hp = 15
   },
   lancer = {
-    name = "lancer",
     speed = 3,
     attackmin = 0,
     attackmax = 2,
@@ -113,7 +109,6 @@ g_archetypes = {
     hp = 10
   },
   archer = {
-    name = "archer",
     speed = 4,
     attackmin = 1,
     attackmax = 2,

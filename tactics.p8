@@ -82,7 +82,8 @@ g_archetypes = {
     maxhp = 50,
     hp = 50,
     maxtimer = 6,
-    timer = 5
+    timer = 5,
+    spawnable = false
   },
   knight = {
     speed = 2,
@@ -90,7 +91,8 @@ g_archetypes = {
     attackmax = 1,
     might = 3,
     maxhp = 10,
-    hp = 10
+    hp = 10,
+    spawnable = true
   },
   dwarf = {
     speed = 2,
@@ -98,7 +100,8 @@ g_archetypes = {
     attackmax = 1,
     might = 4,
     maxhp = 15,
-    hp = 15
+    hp = 15,
+    spawnable = true
   },
   lancer = {
     speed = 3,
@@ -106,7 +109,8 @@ g_archetypes = {
     attackmax = 2,
     might = 2,
     maxhp = 10,
-    hp = 10
+    hp = 10,
+    spawnable = true
   },
   archer = {
     speed = 4,
@@ -114,7 +118,8 @@ g_archetypes = {
     attackmax = 2,
     might = 1,
     maxhp = 5,
-    hp = 5
+    hp = 5,
+    spawnable = true
   }
 }
 
@@ -351,10 +356,12 @@ function copy(src)
   return dest
 end
 
-function getkeys(src)
+function spawnablekeys(src)
   local keys = {}
   for key, value in pairs(src) do
-    add(keys, key)
+    if value.spawnable == true then
+      add(keys, key)
+    end
   end
   return keys
 end
@@ -754,7 +761,7 @@ function portalspawn()
   for unit in all(g_units.evil) do
     if unit.type == "portal" and unit.timer == 1 then
       unit.timer = unit.maxtimer
-      local keys = getkeys(g_archetypes)
+      local keys = spawnablekeys(g_archetypes)
       local index = flr(rnd(#keys)) + 1
       add(g_units.evil, createunit(keys[index], 1, "evil", unit.x, unit.y))
     end

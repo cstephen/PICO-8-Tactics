@@ -782,6 +782,7 @@ function showstats(unit, screen)
   statprint(unit.type, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
   statprint("lvl: " .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp: " .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
+  statprint("xp: " .. flr((unit.xp / (5 * unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
 end
 
 function portalspawn()

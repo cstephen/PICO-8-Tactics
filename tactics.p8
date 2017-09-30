@@ -370,7 +370,6 @@ function enemyturn()
   elseif g_enemymoving == false and g_enemyattacking == true then
     attack(attackspace())
     g_enemyattacking = false
-    g_chosen.actionover = true
   end
 end
 

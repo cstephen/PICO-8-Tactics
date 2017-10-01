@@ -4,9 +4,9 @@ __lua__
 
 -- prefix global variables with g_
 g_select = {x = 18, y = 0}
-g_friendlymoving = false
+g_playermoving = false
 g_enemymoving = false
-g_attacking = false
+g_playerattacking = false
 g_enemyattacking = false
 g_back = false
 g_turnover = false
@@ -220,24 +220,24 @@ function playerturn()
   end
 
   if btnp(4) and g_moveanimation == nil then
-    if g_friendlymoving == false
-    and g_attacking == false then
+    if g_playermoving == false
+    and g_playerattacking == false then
       g_chosen = getunit(g_select.x, g_select.y)[1]
       if g_chosen != nil
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
         g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"})
       end
-    elseif g_friendlymoving == true
-    and g_attacking == false
+    elseif g_playermoving == true
+    and g_playerattacking == false
     and g_valid[g_select.x] != nil
     and g_valid[g_select.x][g_select.y] != nil then
       if validaction("move")
       or (g_select.x == g_chosen.x and g_select.y == g_chosen.y) then
         move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
-    elseif g_friendlymoving == false
-    and g_attacking == true then
+    elseif g_playermoving == false
+    and g_playerattacking == true then
       if validaction("attack") then
         attack({
           x = g_select.x,
@@ -245,29 +245,29 @@ function playerturn()
         })
       elseif g_select.x == g_chosen.x and g_select.y == g_chosen.y then
         gridclear(g_bg, {sprite = 0})
-        g_friendlymoving = false
-        g_attacking = false
+        g_playermoving = false
+        g_playerattacking = false
         endaction()
       end
     end
   end
 
   if btnp(5) then
-    if g_friendlymoving == true
-    and g_attacking == false then
+    if g_playermoving == true
+    and g_playerattacking == false then
       gridclear(g_bg, {sprite = 0})
-      g_friendlymoving = false
+      g_playermoving = false
       modifyunit(g_chosen, {
         moving = false
       })
-    elseif g_friendlymoving == false
-    and g_attacking == true then
+    elseif g_playermoving == false
+    and g_playerattacking == true then
       g_back = true
       gridclear(g_bg, {sprite = 0})
       move(g_lastspace.x, g_lastspace.y, {"good", "neutral"}, {"evil"})
       g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"})
-      g_friendlymoving = true
-      g_attacking = false
+      g_playermoving = true
+      g_playerattacking = false
     end
   end
 end
@@ -611,7 +611,7 @@ function battleanimate()
     g_battleanimation = nil
 
     if g_playerturn == true then
-      g_attacking = false
+      g_playerattacking = false
     else
       g_enemyattacking = false
     end
@@ -747,7 +747,8 @@ end
 function endturn(side)
   if side == "player" then
     g_playerturn = false
-    g_friendlymoving = false
+    g_playermoving = false
+    g_playerattacking = false
 
     for unit in all(g_units.evil) do
       unit.actionover = false
@@ -764,8 +765,8 @@ function endturn(side)
     }
   else
     g_playerturn = true
-    g_friendlymoving = false
-    g_attacking = false
+    g_enemymoving = false
+    g_enemyattacking = false
 
     for unit in all(g_units.evil) do
       if unit.type == "portal" then
@@ -864,7 +865,7 @@ function getunit(x, y)
 end
 
 function exploremoves(x, y, passable, obstacles)
-  g_friendlymoving = true
+  g_playermoving = true
   return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles, true)
 end
 
@@ -911,7 +912,7 @@ function moveanimate()
   if currentcell.x == finish.x
   and currentcell.y == finish.y then
     moveunit(g_chosen, finish.x, finish.y)
-    g_friendlymoving = false
+    g_playermoving = false
     g_enemymoving = false
     g_moveanimation = nil
     g_spaces = exploreattacks(attacktargets)
@@ -964,7 +965,7 @@ function exploreattacks(targets)
   local attackspaces = minmaxrange(g_chosen.x, g_chosen.y, g_chosen.attackmin, g_chosen.attackmax, 0, 253, targets, {}, true)
   if #attackspaces > 0 then
     if g_playerturn == true then
-      g_attacking = true
+      g_playerattacking = true
     else
       g_enemyattacking =  true
     end

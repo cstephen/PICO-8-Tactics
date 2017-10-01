@@ -247,7 +247,7 @@ function playerturn()
         gridclear(g_bg, {sprite = 0})
         g_friendlymoving = false
         g_attacking = false
-        endturn()
+        endaction()
       end
     end
   end
@@ -335,7 +335,7 @@ function enemyturn()
   end
 
   if turnover == true then
-    endturn()
+    endaction()
     return
   end
 
@@ -627,7 +627,7 @@ function battleanimate()
       g_enemyattacking = false
     end
 
-    endturn()
+    endaction()
     return
   end
 
@@ -728,7 +728,7 @@ function die(dyingunit)
   end
 end
 
-function endturn()
+function endaction()
   g_chosen.actionover = true
   g_turnover = true
 
@@ -740,12 +740,28 @@ function endturn()
     end
 
     if g_turnover == true then
-      g_playerturn = false
-      g_friendlymoving = false
-
-      for unit in all(g_units.evil) do
-        unit.actionover = false
+      endturn("player")
+    end
+  else
+    for unit in all(g_units.evil) do
+      if unit.actionover == false then
+        g_turnover = false
       end
+    end
+
+    if g_turnover == true then
+      endturn("enemy")
+    end
+  end
+end
+
+function endturn(side)
+  if side == "player" then
+    g_playerturn = false
+    g_friendlymoving = false
+
+    for unit in all(g_units.evil) do
+      unit.actionover = false
     end
 
     g_lastselect = {
@@ -758,37 +774,29 @@ function endturn()
       y = g_mapcorner.y,
     }
   else
+    g_playerturn = true
+    g_friendlymoving = false
+    g_attacking = false
+
     for unit in all(g_units.evil) do
-      if unit.actionover == false then
-        g_turnover = false
+      if unit.type == "portal" then
+        unit.timer -= 1
       end
     end
 
-    if g_turnover == true then
-      g_playerturn = true
-      g_friendlymoving = false
-      g_attacking = false
-
-      for unit in all(g_units.evil) do
-        if unit.type == "portal" then
-          unit.timer -= 1
-        end
-      end
-
-      for unit in all(g_units.good) do
-        unit.actionover = false
-      end
-
-      g_select = {
-        x = g_lastselect.x,
-        y = g_lastselect.y
-      }
-
-      g_mapcorner = {
-        x = g_lastmapcorner.x,
-        y = g_lastmapcorner.y
-      }
+    for unit in all(g_units.good) do
+      unit.actionover = false
     end
+
+    g_select = {
+      x = g_lastselect.x,
+      y = g_lastselect.y
+    }
+
+    g_mapcorner = {
+      x = g_lastmapcorner.x,
+      y = g_lastmapcorner.y
+    }
   end
 end
 
@@ -972,7 +980,7 @@ function exploreattacks(targets)
       g_enemyattacking =  true
     end
   else
-    endturn()
+    endaction()
   end
 
   return attackspaces

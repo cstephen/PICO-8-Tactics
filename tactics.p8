@@ -238,7 +238,8 @@ function playerturn()
         move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_moving == false
-    and g_attacking == "player" then
+    and g_attacking == "player"
+    and g_battleanimation == nil then
       if validaction("attack") then
         attack({
           x = g_select.x,

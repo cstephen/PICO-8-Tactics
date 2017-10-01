@@ -816,11 +816,6 @@ function createunit(type, level, alignment, x, y)
   new.moving = false
   new.actionover = false
 
-  if alignment == "evil" then
-    new.hp = flr(new.hp / 2);
-    new.might = flr(new.might / 2)
-  end
-
   if type == "portal" then
     new.maxtimer = g_archetypes[type].maxtimer
     new.timer = g_archetypes[type].timer

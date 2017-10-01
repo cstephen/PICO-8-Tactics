@@ -325,23 +325,12 @@ end
 function enemyturn()
   portalspawn()
 
-  local turnover = true
-  for unit in all(g_units.evil) do
-    if unit.type == "portal" then
-      unit.actionover = true
-    elseif unit.actionover == false then
-      turnover = false
-    end
-  end
-
-  if turnover == true then
-    endaction()
-    return
-  end
-
   if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
-      if unit.actionover == false then
+      if unit.type == "portal" then
+        unit.actionover = true
+        endaction()
+      elseif unit.actionover == false then
         g_mapcorner = {
           x = unit.x - 8,
           y = unit.y - 8

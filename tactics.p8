@@ -75,51 +75,81 @@ g_sprites = {
 
 g_archetypes = {
   portal = {
-    speed = 0,
+    basehp = 50,
+    basemight = 0,
+    basespeed = 0,
+    levelhp = 10,
+    levelmight = 0,
+    levelspeed = 0,
     attackmin = 0,
     attackmax = 0,
-    might = 0,
-    maxhp = 50,
-    hp = 50,
+    spawnable = false,
     maxtimer = 6,
     timer = 5,
-    spawnable = false
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   },
   knight = {
-    speed = 2,
+    basehp = 10,
+    basemight = 3,
+    basespeed = 1,
+    levelhp = 3,
+    levelmight = 2,
+    levelspeed = 2,
     attackmin = 0,
     attackmax = 1,
-    might = 3,
-    maxhp = 10,
-    hp = 10,
-    spawnable = true
+    spawnable = true,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   },
   dwarf = {
-    speed = 2,
+    basehp = 15,
+    basemight = 4,
+    basespeed = 1,
+    levelhp = 5,
+    levelmight = 3,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
-    might = 4,
-    maxhp = 15,
-    hp = 15,
-    spawnable = true
+    spawnable = true,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   },
   lancer = {
-    speed = 3,
+    basehp = 10,
+    basemight = 2,
+    basespeed = 2,
+    levelhp = 2,
+    levelmight = 1,
+    levelspeed = 1,
     attackmin = 0,
-    attackmax = 2,
-    might = 2,
-    maxhp = 10,
-    hp = 10,
-    spawnable = true
+    attackmax = 1,
+    spawnable = true,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   },
   archer = {
-    speed = 4,
-    attackmin = 1,
-    attackmax = 2,
-    might = 1,
-    maxhp = 5,
-    hp = 5,
-    spawnable = true
+    basehp = 5,
+    basemight = 1,
+    basespeed = 2,
+    levelhp = 1,
+    levelmight = 1,
+    levelspeed = 3,
+    attackmin = 0,
+    attackmax = 1,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   }
 }
 
@@ -816,6 +846,9 @@ function createunit(type, level, alignment, x, y)
   new.moving = false
   new.actionover = false
 
+  levelup(new, level)
+  new.hp = new.maxhp
+
   if type == "portal" then
     new.maxtimer = g_archetypes[type].maxtimer
     new.timer = g_archetypes[type].timer
@@ -829,6 +862,14 @@ function modifyunit(unit, modifications)
   for key, value in pairs(modifications) do
     unit[key] = value
   end
+end
+
+function levelup(unit, level)
+  modifyunit(unit, {
+    maxhp = unit.basehp + unit.levelhp * (level - 1),
+    might = unit.basemight + unit.levelmight * (level - 1),
+    speed = unit.basespeed + unit.levelspeed * (level - 1)
+  })
 end
 
 function moveunit(unit, x, y)

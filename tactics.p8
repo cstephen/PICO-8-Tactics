@@ -11,7 +11,6 @@ g_moving = false
 g_attacking = false
 
 g_back = false
-g_turnover = false
 g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
@@ -715,26 +714,26 @@ end
 
 function endaction()
   g_chosen.actionover = true
-  g_turnover = true
+  local turnover = true
 
   if g_turn == "player" then
     for unit in all(g_units.good) do
       if unit.actionover == false then
-        g_turnover = false
+        turnover = false
       end
     end
 
-    if g_turnover == true then
+    if turnover == true then
       endturn("player")
     end
   else
     for unit in all(g_units.evil) do
       if unit.actionover == false then
-        g_turnover = false
+        turnover = false
       end
     end
 
-    if g_turnover == true then
+    if turnover == true then
       endturn("enemy")
     end
   end

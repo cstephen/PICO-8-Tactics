@@ -768,6 +768,9 @@ function endturn(side)
 
     for unit in all(g_units.good) do
       unit.actionover = false
+      if unit.hp < unit.maxhp then
+        unit.hp += 1
+      end
     end
 
     g_select = {

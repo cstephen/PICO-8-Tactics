@@ -323,11 +323,10 @@ function randomspace()
 end
 
 function enemyturn()
-  portalspawn()
-
   if g_enemymoving == false and g_enemyattacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
       if unit.type == "portal" then
+        portalspawn(unit)
         unit.actionover = true
         endaction()
       elseif unit.actionover == false then
@@ -797,14 +796,12 @@ function showstats(unit, screen)
   statprint("xp:" .. flr((unit.xp / (5 * unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
 end
 
-function portalspawn()
-  for unit in all(g_units.evil) do
-    if unit.type == "portal" and unit.timer == 1 then
-      unit.timer = unit.maxtimer
-      local keys = spawnablekeys(g_archetypes)
-      local index = flr(rnd(#keys)) + 1
-      add(g_units.evil, createunit(keys[index], 1, "evil", unit.x, unit.y))
-    end
+function portalspawn(portal)
+  if portal.timer == 1 then
+    portal.timer = portal.maxtimer
+    local keys = spawnablekeys(g_archetypes)
+    local index = flr(rnd(#keys)) + 1
+    add(g_units.evil, createunit(keys[index], 1, "evil", portal.x, portal.y))
   end
 end
 

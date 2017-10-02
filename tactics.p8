@@ -388,8 +388,8 @@ function enemyturn()
 
         if g_mapcorner.y < 0 then
           g_mapcorner.y = 0
-        elseif g_mapcorner.y + 16 > 63 then
-          g_mapcorner.y = 47
+        elseif g_mapcorner.y + 16 > 31 then
+          g_mapcorner.y = 15
         end
 
         g_chosen = unit
@@ -1438,4 +1438,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

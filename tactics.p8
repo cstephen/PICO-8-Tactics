@@ -3,7 +3,9 @@ version 8
 __lua__
 
 -- prefix global variables with g_
+g_numportals = 5
 g_select = {x = 18, y = 0}
+g_gridsize = {x = 128, y = 32}
 
 -- state variables
 g_turn = "player"
@@ -11,7 +13,6 @@ g_moving = false
 g_attacking = false
 
 g_back = false
-g_gridsize = {x = 128, y = 32}
 g_alternate = 20
 g_moveanimation = nil
 g_spaces = nil
@@ -163,9 +164,6 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.evil, createunit("portal", 1, "evil", 24, 8))
-  add(g_units.evil, createunit("portal", 1, "evil", 30, 12))
-
   add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
   add(g_units.good, createunit("knight", 1, "good", 18, 0))
   add(g_units.good, createunit("lancer", 1, "good", 20, 0))
@@ -177,6 +175,16 @@ function _init()
       if sprite > 127 and sprite < 192 then
         g_typemask[i][j] = "obstacle"
       end
+    end
+  end
+
+  local portals = 0
+  while portals < g_numportals do
+    local x = flr(rnd(g_gridsize.x))
+    local y = flr(rnd(g_gridsize.y))
+    if g_typemask[x][y] == "neutral" then
+      add(g_units.evil, createunit("portal", 1, "evil", x, y))
+      portals += 1
     end
   end
 end

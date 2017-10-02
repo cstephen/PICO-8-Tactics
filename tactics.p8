@@ -712,10 +712,10 @@ function damage(alignment)
   if alignment == "good"
   and g_enemy.hp > 0 then
     g_chosen.hp -= g_enemy.might / 3 * g_enemy.level
-    g_enemy.xp += g_chosen.level
+    g_enemy.xp += g_chosen.level / 10
     if g_chosen.hp < 1 then
       g_chosen.hp = 0
-      g_enemy.xp += g_chosen.level / 2
+      g_enemy.xp += g_chosen.level / 5
     end
     if g_enemy.xp >= 3 ^ g_chosen.level then
       g_enemy.xp = 0
@@ -724,10 +724,10 @@ function damage(alignment)
   elseif alignment == "evil"
   and g_chosen.hp > 0 then
     g_enemy.hp -= g_chosen.might / 3 * g_chosen.level
-    g_chosen.xp += g_enemy.level
+    g_chosen.xp += g_enemy.level / 10
     if g_enemy.hp < 1 then
       g_enemy.hp = 0
-      g_chosen.xp += g_enemy.level / 2
+      g_chosen.xp += g_enemy.level / 5
     end
     if g_chosen.xp >= 3 ^ g_chosen.level then
       g_chosen.xp = 0

@@ -164,7 +164,12 @@ function _init()
   gridclear(g_typemask, "neutral")
 
   add(g_units.evil, createunit("portal", 1, "evil", 24, 8))
+  add(g_units.evil, createunit("portal", 1, "evil", 30, 12))
+
+  add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
   add(g_units.good, createunit("knight", 1, "good", 18, 0))
+  add(g_units.good, createunit("lancer", 1, "good", 20, 0))
+  add(g_units.good, createunit("archer", 1, "good", 21, 0))
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do

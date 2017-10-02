@@ -84,8 +84,8 @@ g_archetypes = {
     attackmin = 0,
     attackmax = 0,
     spawnable = false,
-    maxtimer = 6,
-    timer = 5,
+    maxtimer = 10,
+    timer = 0,
     maxhp = 0,
     hp = 0,
     might = 0,
@@ -129,7 +129,7 @@ g_archetypes = {
     levelmight = 1,
     levelspeed = 1,
     attackmin = 0,
-    attackmax = 1,
+    attackmax = 2,
     spawnable = true,
     maxhp = 0,
     hp = 0,
@@ -143,8 +143,8 @@ g_archetypes = {
     levelhp = 1,
     levelmight = 1,
     levelspeed = 3,
-    attackmin = 0,
-    attackmax = 1,
+    attackmin = 1,
+    attackmax = 2,
     spawnable = 0,
     maxhp = 0,
     hp = 0,
@@ -827,7 +827,7 @@ end
 
 function portalspawn(portal)
   if portal.timer == 1 then
-    portal.timer = portal.maxtimer
+    portal.timer = portal.maxtimer + 1
     local keys = spawnablekeys(g_archetypes)
     local index = flr(rnd(#keys)) + 1
     add(g_units.evil, createunit(keys[index], 1, "evil", portal.x, portal.y))
@@ -851,7 +851,7 @@ function createunit(type, level, alignment, x, y)
 
   if type == "portal" then
     new.maxtimer = g_archetypes[type].maxtimer
-    new.timer = g_archetypes[type].timer
+    new.timer = g_archetypes[type].maxtimer + 1
   end
 
   g_typemask[x][y] = alignment

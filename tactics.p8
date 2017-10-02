@@ -715,11 +715,11 @@ function damage(alignment)
     g_enemy.xp += g_chosen.level
     if g_chosen.hp < 1 then
       g_chosen.hp = 0
-      g_enemy.xp += g_chosen.level * 2
+      g_enemy.xp += g_chosen.level / 2
     end
-    if g_enemy.xp >= 5 * g_enemy.level then
+    if g_enemy.xp >= 3 ^ g_chosen.level then
       g_enemy.xp = 0
-      g_enemy.level += 1
+      levelup(g_enemy, g_enemy.level + 1)
     end
   elseif alignment == "evil"
   and g_chosen.hp > 0 then
@@ -727,11 +727,11 @@ function damage(alignment)
     g_chosen.xp += g_enemy.level
     if g_enemy.hp < 1 then
       g_enemy.hp = 0
-      g_chosen.xp += g_enemy.level * 2
+      g_chosen.xp += g_enemy.level / 2
     end
-    if g_chosen.xp >= 5 * g_chosen.level then
+    if g_chosen.xp >= 3 ^ g_chosen.level then
       g_chosen.xp = 0
-      g_chosen.level += 1
+      levelup(g_chosen, g_chosen.level + 1)
     end
   end
 end
@@ -827,7 +827,7 @@ function showstats(unit, screen)
   statprint(unit.type, screen.pos.x, screen.pos.y, g_colors[unit.alignment], screen.width)
   statprint("lvl:" .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp:" .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
-  statprint("xp:" .. flr((unit.xp / (5 * unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
+  statprint("xp:" .. flr((unit.xp / (unit.level ^ 3)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
 end
 
 function portalspawn(portal)
@@ -873,7 +873,8 @@ function levelup(unit, level)
   modifyunit(unit, {
     maxhp = unit.basehp + unit.levelhp * (level - 1),
     might = unit.basemight + unit.levelmight * (level - 1),
-    speed = unit.basespeed + unit.levelspeed * (level - 1)
+    speed = unit.basespeed + unit.levelspeed * (level - 1),
+    level = level
   })
 end
 

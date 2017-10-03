@@ -164,21 +164,21 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.good, createunit("portal", 1, "good", 8, 8))
-  add(g_units.good, createunit("portal", 1, "good", 8, 16))
-  add(g_units.good, createunit("portal", 1, "good", 8, 24))
-
   add(g_units.good, createunit("portal", 1, "good", 16, 8))
   add(g_units.good, createunit("portal", 1, "good", 16, 16))
   add(g_units.good, createunit("portal", 1, "good", 16, 24))
 
+  add(g_units.good, createunit("portal", 1, "good", 20, 8))
+  add(g_units.good, createunit("portal", 1, "good", 20, 16))
+  add(g_units.good, createunit("portal", 1, "good", 20, 24))
+
+  add(g_units.evil, createunit("portal", 1, "evil", 108, 8))
+  add(g_units.evil, createunit("portal", 1, "evil", 108, 16))
+  add(g_units.evil, createunit("portal", 1, "evil", 108, 24))
+
   add(g_units.evil, createunit("portal", 1, "evil", 112, 8))
   add(g_units.evil, createunit("portal", 1, "evil", 112, 16))
   add(g_units.evil, createunit("portal", 1, "evil", 112, 24))
-
-  add(g_units.evil, createunit("portal", 1, "evil", 120, 8))
-  add(g_units.evil, createunit("portal", 1, "evil", 120, 16))
-  add(g_units.evil, createunit("portal", 1, "evil", 120, 24))
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do
@@ -849,6 +849,13 @@ function endturn(side)
       x = g_lastmapcorner.x,
       y = g_lastmapcorner.y
     }
+
+    for unit in all(g_units.good) do
+      if unit.type == "portal" then
+        portalspawn(unit)
+        unit.actionover = true
+      end
+    end
   end
 
   g_moving = false

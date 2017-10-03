@@ -189,12 +189,7 @@ function _init()
     end
   end
 
-  for unit in all(g_units.good) do
-    if unit.type == "portal" then
-      portalspawn(unit)
-      unit.actionover = true
-    end
-  end
+  portalspawn("good")
 end
 
 function _update()
@@ -390,11 +385,7 @@ end
 function enemyturn()
   if g_moving == false and g_attacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
-      if unit.type == "portal" then
-        portalspawn(unit)
-        unit.actionover = true
-        endaction()
-      elseif unit.actionover == false then
+      if unit.actionover == false then
         g_mapcorner = {
           x = unit.x - 8,
           y = unit.y - 8
@@ -824,6 +815,8 @@ function endturn(side)
       x = g_mapcorner.x,
       y = g_mapcorner.y,
     }
+
+    portalspawn("evil")
   else
     g_turn = "player"
 
@@ -850,12 +843,7 @@ function endturn(side)
       y = g_lastmapcorner.y
     }
 
-    for unit in all(g_units.good) do
-      if unit.type == "portal" then
-        portalspawn(unit)
-        unit.actionover = true
-      end
-    end
+    portalspawn("good")
   end
 
   g_moving = false
@@ -869,12 +857,17 @@ function showstats(unit, screen)
   statprint("xp:" .. flr((unit.xp / (3 ^ unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
 end
 
-function portalspawn(portal)
-  if portal.timer == 0 then
-    portal.timer = portal.maxtimer + 1
-    local keys = spawnablekeys(g_archetypes)
-    local index = flr(rnd(#keys)) + 1
-    add(g_units[portal.alignment], createunit(keys[index], 1, portal.alignment, portal.x, portal.y))
+function portalspawn(alignment)
+  for unit in all(g_units[alignment]) do
+    if unit.type == "portal" then
+      if unit.timer == 0 then
+        unit.timer = unit.maxtimer + 1
+        local keys = spawnablekeys(g_archetypes)
+        local index = flr(rnd(#keys)) + 1
+        add(g_units[unit.alignment], createunit(keys[index], 1, unit.alignment, unit.x, unit.y))
+      end
+      unit.actionover = true
+    end
   end
 end
 

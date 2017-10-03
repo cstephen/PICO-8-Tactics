@@ -814,6 +814,12 @@ function endturn(side)
   if side == "player" then
     g_turn = "enemy"
 
+    for unit in all(g_units.good) do
+      if unit.type == "portal" then
+        unit.timer -= 1
+      end
+    end
+
     for unit in all(g_units.evil) do
       unit.actionover = false
     end

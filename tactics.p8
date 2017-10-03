@@ -1167,7 +1167,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
 end
 
 function validspace(x, y, steps, obstacles)
-  if x < 0 or x >= 128 or y < 0 or y >= 32 then
+  if x < g_gridsize.min.x or x >= g_gridsize.max.x or y < g_gridsize.min.y or y >= g_gridsize.max.y then
     return false
   end
 

@@ -69,7 +69,7 @@ g_sprites = {
     evil = 20
   },
   portal = {
-    good = 0,
+    good = 64,
     evil = 64
   }
 }
@@ -164,10 +164,21 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
-  add(g_units.good, createunit("knight", 1, "good", 18, 0))
-  add(g_units.good, createunit("lancer", 1, "good", 20, 0))
-  add(g_units.good, createunit("archer", 1, "good", 21, 0))
+  add(g_units.good, createunit("portal", 1, "good", 8, 8))
+  add(g_units.good, createunit("portal", 1, "good", 8, 16))
+  add(g_units.good, createunit("portal", 1, "good", 8, 24))
+
+  add(g_units.good, createunit("portal", 1, "good", 16, 8))
+  add(g_units.good, createunit("portal", 1, "good", 16, 16))
+  add(g_units.good, createunit("portal", 1, "good", 16, 24))
+
+  add(g_units.evil, createunit("portal", 1, "evil", 112, 8))
+  add(g_units.evil, createunit("portal", 1, "evil", 112, 16))
+  add(g_units.evil, createunit("portal", 1, "evil", 112, 24))
+
+  add(g_units.evil, createunit("portal", 1, "evil", 120, 8))
+  add(g_units.evil, createunit("portal", 1, "evil", 120, 16))
+  add(g_units.evil, createunit("portal", 1, "evil", 120, 24))
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do
@@ -178,13 +189,10 @@ function _init()
     end
   end
 
-  local portals = 0
-  while portals < g_numportals do
-    local x = flr(rnd(g_gridsize.x))
-    local y = flr(rnd(g_gridsize.y))
-    if g_typemask[x][y] == "neutral" then
-      add(g_units.evil, createunit("portal", 1, "evil", x, y))
-      portals += 1
+  for unit in all(g_units.good) do
+    if unit.type == "portal" then
+      portalspawn(unit)
+      unit.actionover = true
     end
   end
 end
@@ -265,7 +273,11 @@ function playerturn()
   if btnp(4) and g_moveanimation == nil then
     if g_moving == false
     and g_attacking == false then
-      g_chosen = getunit(g_select.x, g_select.y)[1]
+      for unit in all(getunit(g_select.x, g_select.y)) do
+        if unit.type != "portal" then
+          g_chosen = unit
+        end
+      end
       if g_chosen != nil
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
@@ -276,8 +288,7 @@ function playerturn()
     and g_attacking == false
     and g_valid[g_select.x] != nil
     and g_valid[g_select.x][g_select.y] != nil then
-      if validaction("move")
-      or (g_select.x == g_chosen.x and g_select.y == g_chosen.y) then
+      if validaction("move") then
         move(g_select.x, g_select.y, {"good", "neutral"}, {"evil"})
       end
     elseif g_moving == false
@@ -320,8 +331,17 @@ end
 function validaction(type)
   for space in all(g_spaces) do
     if g_select.x == space.x and g_select.y == space.y then
-      if type == "move" and g_typemask[g_select.x][g_select.y] == "neutral" then
-        return true
+      if type == "move" then
+        if g_typemask[g_select.x][g_select.y] == "neutral" then
+          return true
+        elseif g_select.x == g_chosen.x and g_select.y == g_chosen.y then
+          for unit in all(getunit(g_select.x, g_select.y)) do
+            if unit.type == "portal" then
+              return false
+            end
+            return true
+          end
+        end
       elseif type == "attack" then
         return true
       end
@@ -483,16 +503,20 @@ function griddraw(grid)
 end
 
 function portaldraw()
-  local pos = spritepos(64)
-  for portal in all(g_portals) do
-    sspr(pos.x * 8, pos.y * 8, 8, 8, (portal.x - g_mapcorner.x) * 8, (portal.y - g_mapcorner.y) * 8)
+  for alignment, units in pairs(g_units) do
+    for unit in all(units) do
+      if unit.type == "portal" then
+        local pos = spritepos(unit.sprite)
+        sspr(pos.x * 8, pos.y * 8, 8, 8, (unit.x - g_mapcorner.x) * 8, (unit.y - g_mapcorner.y) * 8)
+      end
+    end
   end
 end
 
 function unitdraw()
   for alignment, units in pairs(g_units) do
     for unit in all(units) do
-      if unit.moving == false then
+      if unit.type != "portal" and unit.moving == false then
         local pos = spritepos(unit.sprite)
         sspr(pos.x * 8, pos.y * 8, 8, 8, (unit.x - g_mapcorner.x) * 8, (unit.y - g_mapcorner.y) * 8)
       end
@@ -839,11 +863,11 @@ function showstats(unit, screen)
 end
 
 function portalspawn(portal)
-  if portal.timer == 1 then
+  if portal.timer == 0 then
     portal.timer = portal.maxtimer + 1
     local keys = spawnablekeys(g_archetypes)
     local index = flr(rnd(#keys)) + 1
-    add(g_units.evil, createunit(keys[index], 1, "evil", portal.x, portal.y))
+    add(g_units[portal.alignment], createunit(keys[index], 1, portal.alignment, portal.x, portal.y))
   end
 end
 
@@ -864,7 +888,6 @@ function createunit(type, level, alignment, x, y)
 
   if type == "portal" then
     new.maxtimer = g_archetypes[type].maxtimer
-    new.timer = g_archetypes[type].maxtimer + 1
   end
 
   g_typemask[x][y] = alignment

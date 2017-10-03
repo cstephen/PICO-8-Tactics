@@ -3,14 +3,39 @@ version 8
 __lua__
 
 -- prefix global variables with g_
-g_numportals = 5
-g_select = {x = 18, y = 0}
-g_gridsize = {x = 128, y = 32}
 
 -- state variables
 g_turn = "player"
 g_moving = false
 g_attacking = false
+
+-- map variables
+g_mapsize = {
+  x = 40,
+  y = 32
+}
+
+g_gridsize = {
+  min = {
+    x = flr(rnd(128 - g_mapsize.x)),
+    y = flr(rnd(32 - g_mapsize.y))
+  }
+}
+
+g_gridsize.max = {
+  x = g_gridsize.min.x + g_mapsize.x,
+  y = g_gridsize.min.y + g_mapsize.y
+}
+
+g_select = {
+  x = g_gridsize.min.x,
+  y = g_gridsize.min.y
+}
+
+g_mapcorner = {
+  x = g_gridsize.min.x,
+  y = g_gridsize.min.y
+}
 
 g_back = false
 g_alternate = 20
@@ -20,11 +45,6 @@ g_spaces = nil
 g_units = {
   good = {},
   evil = {}
-}
-
-g_mapcorner = {
-  x = 18,
-  y = 0
 }
 
 g_mapanimatecounter = 0
@@ -164,24 +184,16 @@ function _init()
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.good, createunit("portal", 1, "good", 16, 8))
-  add(g_units.good, createunit("portal", 1, "good", 16, 16))
-  add(g_units.good, createunit("portal", 1, "good", 16, 24))
+  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 8))
+  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 16))
+  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 24))
 
-  add(g_units.good, createunit("portal", 1, "good", 20, 8))
-  add(g_units.good, createunit("portal", 1, "good", 20, 16))
-  add(g_units.good, createunit("portal", 1, "good", 20, 24))
+  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 8))
+  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 16))
+  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 24))
 
-  add(g_units.evil, createunit("portal", 1, "evil", 108, 8))
-  add(g_units.evil, createunit("portal", 1, "evil", 108, 16))
-  add(g_units.evil, createunit("portal", 1, "evil", 108, 24))
-
-  add(g_units.evil, createunit("portal", 1, "evil", 112, 8))
-  add(g_units.evil, createunit("portal", 1, "evil", 112, 16))
-  add(g_units.evil, createunit("portal", 1, "evil", 112, 24))
-
-  for i=0, g_gridsize.x do
-    for j=0, g_gridsize.y do
+  for i=g_gridsize.min.x, g_gridsize.max.x do
+    for j=g_gridsize.min.y, g_gridsize.max.y do
       local sprite = mget(i, j)
       if sprite > 127 and sprite < 192 then
         g_typemask[i][j] = "obstacle"
@@ -222,7 +234,7 @@ end
 
 function playerturn()
   if btnp(0) then
-    if g_select.x > 0
+    if g_select.x > g_gridsize.min.x
     and g_battleanimation == nil then
       g_select.x -= 1
       if g_select.x - g_mapcorner.x < 0 then
@@ -233,7 +245,7 @@ function playerturn()
   end
 
   if btnp(1) then
-    if g_select.x < 127
+    if g_select.x < g_gridsize.max.x - 1
     and g_battleanimation == nil then
       g_select.x += 1
       if g_select.x - g_mapcorner.x > 15 then
@@ -244,7 +256,7 @@ function playerturn()
   end
 
   if btnp(2) then
-    if g_select.y > 0
+    if g_select.y > g_gridsize.min.y
     and g_battleanimation == nil then
       g_select.y -= 1
       if g_select.y - g_mapcorner.y < 0 then
@@ -255,7 +267,7 @@ function playerturn()
   end
 
   if btnp(3) then
-    if g_select.y < 31
+    if g_select.y < g_gridsize.max.y - 1
     and g_battleanimation == nil then
       g_select.y += 1
       if g_select.y - g_mapcorner.y > 15 then
@@ -470,15 +482,15 @@ end
 
 function gridinit()
   local grid = {}
-  for i=0, g_gridsize.x do
+  for i=g_gridsize.min.x, g_gridsize.max.x do
     grid[i] = {}
   end
   return grid
 end
 
 function gridclear(grid, value)
-  for i=0, g_gridsize.x do
-    for j=0, g_gridsize.y do
+  for i=g_gridsize.min.x, g_gridsize.max.x do
+    for j=g_gridsize.min.y, g_gridsize.max.y do
       grid[i][j] = value
     end
   end

@@ -403,16 +403,16 @@ function enemyturn()
           y = unit.y - 8
         }
 
-        if g_mapcorner.x < 0 then
-          g_mapcorner.x = 0
-        elseif g_mapcorner.x + 16 > 127 then
-          g_mapcorner.x = 111
+        if g_mapcorner.x < g_gridsize.min.x then
+          g_mapcorner.x = g_gridsize.min.x
+        elseif g_mapcorner.x + 16 > g_gridsize.max.x then
+          g_mapcorner.x = g_gridsize.max.x - 16
         end
 
-        if g_mapcorner.y < 0 then
-          g_mapcorner.y = 0
-        elseif g_mapcorner.y + 16 > 31 then
-          g_mapcorner.y = 15
+        if g_mapcorner.y < g_gridsize.min.y then
+          g_mapcorner.y = g_gridsize.min.y
+        elseif g_mapcorner.y + 16 > g_gridsize.max.y then
+          g_mapcorner.y = g_gridsize.max.y - 16
         end
 
         g_chosen = unit

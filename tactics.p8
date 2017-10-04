@@ -394,6 +394,63 @@ function randomspace()
   }
 end
 
+function unitdistance(unit1, unit2)
+  return abs(unit1.x - unit2.x) + abs(unit1.y - unit2.y)
+end
+
+function towardcomrade(unit)
+  local nearestdistance = g_mapsize.x
+  local nearestcomrade = nil
+
+  for comrade in all(g_units.evil) do
+    if comrade.x != unit.x and comrade.y != unit.y and comrade.type != "portal" then
+      local distance = unitdistance(unit, comrade)
+      if distance < nearestdistance then
+        nearestdistance = distance
+        nearestcomrade = comrade
+      end
+    end
+  end
+
+  local space = {
+    x = unit.x,
+    y = unit.y
+  }
+
+  if nearestcomrade != nil then
+    local closerx = copy(space)
+    if unit.x - nearestcomrade.x > 0 then
+      closerx.x -= 1
+    else
+      closerx.x += 1
+    end
+
+    local closery = copy(space)
+    if unit.y - nearestcomrade.y > 0 then
+      closery.y -= 1
+    else
+      closery.y += 1
+    end
+
+    local randomaxis = flr(rnd(2))
+    if randomaxis == 0 then
+      if unitdistance(closerx, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closerx.x][closerx.y] == "neutral" then
+        return closerx
+      elseif unitdistance(closery, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closery.x][closery.y] == "neutral" then
+        return closery
+      end
+    else
+      if unitdistance(closery, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closery.x][closery.y] == "neutral" then
+        return closery
+      elseif unitdistance(closerx, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closerx.x][closerx.y] == "neutral" then
+        return closerx
+      end
+    end
+  end
+
+  return movespace()
+end
+
 function enemyturn()
   if g_moving == false and g_attacking == false and g_battleanimation == nil then
     for unit in all(g_units.evil) do
@@ -416,8 +473,15 @@ function enemyturn()
         end
 
         g_chosen = unit
+        local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, 6, nil, nil, {"evil"}, {}, false)
         g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"})
-        g_select = movespace()
+
+        if #comrades == 0 then
+          g_select = towardcomrade(g_chosen)
+        else
+          g_select = movespace()
+        end
+
         g_moving = "enemy"
         move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
         return

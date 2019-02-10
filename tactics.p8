@@ -67,6 +67,13 @@ g_sprites = {
   archer = {
     good = 4,
     evil = 20
+  },
+  bear = {
+    evil = 64
+  }
+  ,
+  wolf = {
+    evil = 65
   }
 }
 
@@ -126,6 +133,37 @@ g_archetypes = {
     hp = 0,
     might = 0,
     speed = 0
+  },
+  bear = {
+    basehp = 10,
+    basemight = 3,
+    basespeed = 3,
+    levelhp = 2,
+    levelmight = 2,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 1,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  }
+  ,
+  wolf = {
+    basehp = 5,
+    basemight = 1,
+    basespeed = 4,
+    levelhp = 2,
+    levelmight = 1,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 2,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
   }
 }
 
@@ -137,6 +175,9 @@ function _init()
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
+
+  add(g_units.good, createunit("dwarf", 1, "good", 23, 0))
+  add(g_units.evil, createunit("bear", 1, "evil", 19, 7))
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do
@@ -337,7 +378,7 @@ function unitdistance(unit1, unit2)
 end
 
 function towardcomrade(unit)
-  local nearestdistance = g_mapsize.x
+  local nearestdistance = 127
   local nearestcomrade = nil
 
   for comrade in all(g_units.evil) do

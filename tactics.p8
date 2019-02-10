@@ -3,39 +3,14 @@ version 8
 __lua__
 
 -- prefix global variables with g_
+g_numportals = 5
+g_select = {x = 18, y = 0}
+g_gridsize = {x = 128, y = 32}
 
 -- state variables
 g_turn = "player"
 g_moving = false
 g_attacking = false
-
--- map variables
-g_mapsize = {
-  x = 40,
-  y = 32
-}
-
-g_gridsize = {
-  min = {
-    x = flr(rnd(128 - g_mapsize.x)),
-    y = flr(rnd(32 - g_mapsize.y))
-  }
-}
-
-g_gridsize.max = {
-  x = g_gridsize.min.x + g_mapsize.x,
-  y = g_gridsize.min.y + g_mapsize.y
-}
-
-g_select = {
-  x = g_gridsize.min.x,
-  y = g_gridsize.min.y
-}
-
-g_mapcorner = {
-  x = g_gridsize.min.x,
-  y = g_gridsize.min.y
-}
 
 g_back = false
 g_alternate = 20
@@ -45,6 +20,11 @@ g_spaces = nil
 g_units = {
   good = {},
   evil = {}
+}
+
+g_mapcorner = {
+  x = 18,
+  y = 0
 }
 
 g_mapanimatecounter = 0
@@ -87,31 +67,10 @@ g_sprites = {
   archer = {
     good = 4,
     evil = 20
-  },
-  portal = {
-    good = 64,
-    evil = 64
   }
 }
 
 g_archetypes = {
-  portal = {
-    basehp = 50,
-    basemight = 0,
-    basespeed = 0,
-    levelhp = 10,
-    levelmight = 0,
-    levelspeed = 0,
-    attackmin = 0,
-    attackmax = 0,
-    spawnable = false,
-    maxtimer = 10,
-    timer = 0,
-    maxhp = 0,
-    hp = 0,
-    might = 0,
-    speed = 0
-  },
   knight = {
     basehp = 10,
     basemight = 3,
@@ -178,30 +137,19 @@ function _init()
   g_bg = gridinit()
   g_breadcrumbs = gridinit()
   g_typemask = gridinit()
-  g_portalmask = gridinit()
 
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
 
-  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 8))
-  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 16))
-  add(g_units.good, createunit("portal", 1, "good", g_gridsize.min.x + 8, 24))
-
-  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 8))
-  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 16))
-  add(g_units.evil, createunit("portal", 1, "evil", g_gridsize.max.x - 8, 24))
-
-  for i=g_gridsize.min.x, g_gridsize.max.x do
-    for j=g_gridsize.min.y, g_gridsize.max.y do
+  for i=0, g_gridsize.x do
+    for j=0, g_gridsize.y do
       local sprite = mget(i, j)
       if sprite > 127 and sprite < 192 then
         g_typemask[i][j] = "obstacle"
       end
     end
   end
-
-  portalspawn("good")
 end
 
 function _update()
@@ -219,7 +167,6 @@ function _draw()
   map(g_mapcorner.x, g_mapcorner.y, 0, 0, 16, 16)
 
   griddraw(g_bg)
-  portaldraw()
   unitdraw()
   selectdraw()
 
@@ -234,7 +181,7 @@ end
 
 function playerturn()
   if btnp(0) then
-    if g_select.x > g_gridsize.min.x
+    if g_select.x > 0
     and g_battleanimation == nil then
       g_select.x -= 1
       if g_select.x - g_mapcorner.x < 0 then
@@ -245,7 +192,7 @@ function playerturn()
   end
 
   if btnp(1) then
-    if g_select.x < g_gridsize.max.x - 1
+    if g_select.x < 127
     and g_battleanimation == nil then
       g_select.x += 1
       if g_select.x - g_mapcorner.x > 15 then
@@ -256,7 +203,7 @@ function playerturn()
   end
 
   if btnp(2) then
-    if g_select.y > g_gridsize.min.y
+    if g_select.y > 0
     and g_battleanimation == nil then
       g_select.y -= 1
       if g_select.y - g_mapcorner.y < 0 then
@@ -267,7 +214,7 @@ function playerturn()
   end
 
   if btnp(3) then
-    if g_select.y < g_gridsize.max.y - 1
+    if g_select.y < 31
     and g_battleanimation == nil then
       g_select.y += 1
       if g_select.y - g_mapcorner.y > 15 then
@@ -281,9 +228,7 @@ function playerturn()
     if g_moving == false
     and g_attacking == false then
       for unit in all(getunit(g_select.x, g_select.y)) do
-        if unit.type != "portal" then
-          g_chosen = unit
-        end
+        g_chosen = unit
       end
       if g_chosen != nil
       and g_chosen.alignment == "good"
@@ -343,9 +288,6 @@ function validaction(type)
           return true
         elseif g_select.x == g_chosen.x and g_select.y == g_chosen.y then
           for unit in all(getunit(g_select.x, g_select.y)) do
-            if unit.type == "portal" then
-              return false
-            end
             return true
           end
         end
@@ -403,7 +345,7 @@ function towardcomrade(unit)
   local nearestcomrade = nil
 
   for comrade in all(g_units.evil) do
-    if comrade.x != unit.x and comrade.y != unit.y and comrade.type != "portal" then
+    if comrade.x != unit.x and comrade.y != unit.y then
       local distance = unitdistance(unit, comrade)
       if distance < nearestdistance then
         nearestdistance = distance
@@ -460,16 +402,16 @@ function enemyturn()
           y = unit.y - 8
         }
 
-        if g_mapcorner.x < g_gridsize.min.x then
-          g_mapcorner.x = g_gridsize.min.x
-        elseif g_mapcorner.x + 16 > g_gridsize.max.x then
-          g_mapcorner.x = g_gridsize.max.x - 16
+        if g_mapcorner.x < 0 then
+          g_mapcorner.x = 0
+        elseif g_mapcorner.x + 16 > 127 then
+          g_mapcorner.x = 111
         end
 
-        if g_mapcorner.y < g_gridsize.min.y then
-          g_mapcorner.y = g_gridsize.min.y
-        elseif g_mapcorner.y + 16 > g_gridsize.max.y then
-          g_mapcorner.y = g_gridsize.max.y - 16
+        if g_mapcorner.y < 0 then
+          g_mapcorner.y = 0
+        elseif g_mapcorner.y + 16 > 31 then
+          g_mapcorner.y = 15
         end
 
         g_chosen = unit
@@ -546,15 +488,15 @@ end
 
 function gridinit()
   local grid = {}
-  for i=g_gridsize.min.x, g_gridsize.max.x do
+  for i=0, g_gridsize.x do
     grid[i] = {}
   end
   return grid
 end
 
 function gridclear(grid, value)
-  for i=g_gridsize.min.x, g_gridsize.max.x do
-    for j=g_gridsize.min.y, g_gridsize.max.y do
+  for i=0, g_gridsize.x do
+    for j=0, g_gridsize.y do
       grid[i][j] = value
     end
   end
@@ -569,21 +511,10 @@ function griddraw(grid)
   end
 end
 
-function portaldraw()
-  for alignment, units in pairs(g_units) do
-    for unit in all(units) do
-      if unit.type == "portal" then
-        local pos = spritepos(unit.sprite)
-        sspr(pos.x * 8, pos.y * 8, 8, 8, (unit.x - g_mapcorner.x) * 8, (unit.y - g_mapcorner.y) * 8)
-      end
-    end
-  end
-end
-
 function unitdraw()
   for alignment, units in pairs(g_units) do
     for unit in all(units) do
-      if unit.type != "portal" and unit.moving == false then
+      if unit.moving == false then
         local pos = spritepos(unit.sprite)
         sspr(pos.x * 8, pos.y * 8, 8, 8, (unit.x - g_mapcorner.x) * 8, (unit.y - g_mapcorner.y) * 8)
       end
@@ -878,12 +809,6 @@ function endturn(side)
   if side == "player" then
     g_turn = "enemy"
 
-    for unit in all(g_units.good) do
-      if unit.type == "portal" then
-        unit.timer -= 1
-      end
-    end
-
     for unit in all(g_units.evil) do
       unit.actionover = false
     end
@@ -897,16 +822,8 @@ function endturn(side)
       x = g_mapcorner.x,
       y = g_mapcorner.y,
     }
-
-    portalspawn("evil")
   else
     g_turn = "player"
-
-    for unit in all(g_units.evil) do
-      if unit.type == "portal" then
-        unit.timer -= 1
-      end
-    end
 
     for unit in all(g_units.good) do
       unit.actionover = false
@@ -924,8 +841,6 @@ function endturn(side)
       x = g_lastmapcorner.x,
       y = g_lastmapcorner.y
     }
-
-    portalspawn("good")
   end
 
   g_moving = false
@@ -937,20 +852,6 @@ function showstats(unit, screen)
   statprint("lvl:" .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp:" .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
   statprint("xp:" .. flr((unit.xp / (3 ^ unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
-end
-
-function portalspawn(alignment)
-  for unit in all(g_units[alignment]) do
-    if unit.type == "portal" then
-      if unit.timer == 0 then
-        unit.timer = unit.maxtimer + 1
-        local keys = spawnablekeys(g_archetypes)
-        local index = flr(rnd(#keys)) + 1
-        add(g_units[unit.alignment], createunit(keys[index], 1, unit.alignment, unit.x, unit.y))
-      end
-      unit.actionover = true
-    end
-  end
 end
 
 function createunit(type, level, alignment, x, y)
@@ -967,10 +868,6 @@ function createunit(type, level, alignment, x, y)
 
   levelup(new, level)
   new.hp = new.maxhp
-
-  if type == "portal" then
-    new.maxtimer = g_archetypes[type].maxtimer
-  end
 
   g_typemask[x][y] = alignment
   return new
@@ -1231,7 +1128,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
 end
 
 function validspace(x, y, steps, obstacles)
-  if x < g_gridsize.min.x or x >= g_gridsize.max.x or y < g_gridsize.min.y or y >= g_gridsize.max.y then
+  if x < 0 or x >= 128 or y < 0 or y >= 32 then
     return false
   end
 
@@ -1281,14 +1178,14 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-88888888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+44000044060000600022220000333300f0f00f0f0000600003300330000000000000000000000000000000000000000000000000000000000000000000000000
+24444442066666600211112003333330fff00fff000c600007733770000000000000000000000000000000000000000000000000000000000000000000000000
+4774477407766770211111120323323004444440000c600007133170000000000000000000000000000000000000000000000000000000000000000000000000
+471441740716617021911912033333300444444000cccc0033333333000000000000000000000000000000000000000000000000000000000000000000000000
+44444444066666600111611000333300041441400cccccc033333333000000000000000000000000000000000000000000000000000000000000000000000000
+4441144406666660001761000003300004444440cc8cc87c33888833000000000000000000000000000000000000000000000000000000000000000000000000
+04444440006116000007600000004000004444000c7117c003333330000000000000000000000000000000000000000000000000000000000000000000000000
+00444400000110000007000000004000000110000077770000333300000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

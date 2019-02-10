@@ -80,7 +80,6 @@ g_archetypes = {
     levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
-    spawnable = true,
     maxhp = 0,
     hp = 0,
     might = 0,
@@ -95,7 +94,6 @@ g_archetypes = {
     levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
-    spawnable = true,
     maxhp = 0,
     hp = 0,
     might = 0,
@@ -110,7 +108,6 @@ g_archetypes = {
     levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
-    spawnable = true,
     maxhp = 0,
     hp = 0,
     might = 0,
@@ -125,7 +122,6 @@ g_archetypes = {
     levelspeed = 1,
     attackmin = 1,
     attackmax = 2,
-    spawnable = 0,
     maxhp = 0,
     hp = 0,
     might = 0,
@@ -441,16 +437,6 @@ function copy(src)
     dest[key] = value
   end
   return dest
-end
-
-function spawnablekeys(src)
-  local keys = {}
-  for key, value in pairs(src) do
-    if value.spawnable == true then
-      add(keys, key)
-    end
-  end
-  return keys
 end
 
 function inarray(needle, haystack)

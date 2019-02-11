@@ -248,14 +248,44 @@ g_archetypes = {
   }
 }
 
+g_terrainsprites = {
+  deepwater = {
+    min = 192,
+    max = 201
+  },
+  water = {
+    min = 202,
+    max = 219
+  },
+  beach = {
+    min = 220,
+    max = 228
+  },
+  grass = {
+    min = 229,
+    max = 237
+  },
+  sand = {
+    min = 238,
+    max = 242
+  },
+  bridge = {
+    min = 243,
+    max = 243
+  }
+}
+
 function _init()
   g_bg = gridinit()
   g_breadcrumbs = gridinit()
   g_typemask = gridinit()
+  g_terrain = gridinit()
 
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
+
+  processterrain()
 
   add(g_units.good, createunit("dwarf", 1, "good", 23, 0))
   add(g_units.evil, createunit("bear", 1, "evil", 20, 4))
@@ -299,6 +329,21 @@ function _draw()
 
   if g_battleanimation != nil then
     battleanimate()
+  end
+
+  print(g_terrain[g_select.x][g_select.y], 8, 8, 4)
+end
+
+function processterrain()
+  for i=0, g_gridsize.x - 1 do
+    for j=0, g_gridsize.y - 1 do
+      for terrain in pairs(g_terrainsprites) do
+        if mget(i, j) >= g_terrainsprites[terrain].min
+        and mget(i, j) <= g_terrainsprites[terrain].max then
+          g_terrain[i][j] = terrain
+        end
+      end
+    end
   end
 end
 
@@ -1553,4 +1598,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

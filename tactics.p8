@@ -70,10 +70,24 @@ g_sprites = {
   },
   bear = {
     evil = 64
-  }
-  ,
+  },
   wolf = {
     evil = 65
+  },
+  raven = {
+    evil = 66
+  },
+  snake = {
+    evil = 67
+  },
+  deer = {
+    evil = 68
+  },
+  shark = {
+    evil = 69
+  },
+  frog = {
+    evil = 70
   }
 }
 
@@ -148,13 +162,87 @@ g_archetypes = {
     hp = 0,
     might = 0,
     speed = 0
-  }
-  ,
+  },
   wolf = {
     basehp = 5,
     basemight = 1,
     basespeed = 4,
     levelhp = 2,
+    levelmight = 1,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 2,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  },
+  raven = {
+    basehp = 2,
+    basemight = 1,
+    basespeed = 6,
+    levelhp = 1,
+    levelmight = 1,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 1,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  },
+  snake = {
+    basehp = 1,
+    basemight = 1,
+    basespeed = 3,
+    levelhp = 1,
+    levelmight = 1,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 1,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  },
+  deer = {
+    basehp = 4,
+    basemight = 1,
+    basespeed = 2,
+    levelhp = 1,
+    levelmight = 1,
+    levelspeed = 2,
+    attackmin = 0,
+    attackmax = 2,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  },
+  shark = {
+    basehp = 4,
+    basemight = 1,
+    basespeed = 3,
+    levelhp = 1,
+    levelmight = 1,
+    levelspeed = 3,
+    attackmin = 0,
+    attackmax = 2,
+    spawnable = 0,
+    maxhp = 0,
+    hp = 0,
+    might = 0,
+    speed = 0
+  },
+  frog = {
+    basehp = 2,
+    basemight = 1,
+    basespeed = 2,
+    levelhp = 1,
     levelmight = 1,
     levelspeed = 2,
     attackmin = 0,
@@ -177,7 +265,12 @@ function _init()
   gridclear(g_typemask, "neutral")
 
   add(g_units.good, createunit("dwarf", 1, "good", 23, 0))
-  add(g_units.evil, createunit("bear", 1, "evil", 19, 7))
+  add(g_units.evil, createunit("bear", 1, "evil", 20, 4))
+  add(g_units.evil, createunit("raven", 1, "evil", 21, 4))
+  add(g_units.evil, createunit("snake", 1, "evil", 22, 4))
+  add(g_units.evil, createunit("deer", 1, "evil", 23, 4))
+  add(g_units.evil, createunit("shark", 1, "evil", 24, 4))
+  add(g_units.evil, createunit("frog", 1, "evil", 25, 4))
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do

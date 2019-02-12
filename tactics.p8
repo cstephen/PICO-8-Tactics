@@ -104,7 +104,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   dwarf = {
     basehp = 15,
@@ -118,7 +127,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 2,
+      beach = 5,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   lancer = {
     basehp = 10,
@@ -132,7 +150,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   archer = {
     basehp = 5,
@@ -146,12 +173,21 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 0.25,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   bear = {
     basehp = 10,
     basemight = 3,
-    basespeed = 3,
+    basespeed = 1,
     levelhp = 2,
     levelmight = 2,
     levelspeed = 2,
@@ -160,7 +196,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 2,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   wolf = {
     basehp = 5,
@@ -174,7 +219,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   raven = {
     basehp = 2,
@@ -188,7 +242,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   snake = {
     basehp = 1,
@@ -202,7 +265,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   deer = {
     basehp = 4,
@@ -216,7 +288,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   shark = {
     basehp = 4,
@@ -230,7 +311,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   },
   frog = {
     basehp = 2,
@@ -244,7 +334,16 @@ g_archetypes = {
     maxhp = 0,
     hp = 0,
     might = 0,
-    speed = 0
+    speed = 0,
+    terrain = {
+      grass = 1,
+      beach = 1,
+      water = 1,
+      deepwater = 1,
+      sand = 1,
+      bridge = 1,
+      obstacle = 0
+    }
   }
 }
 
@@ -284,11 +383,12 @@ function _init()
   gridclear(g_bg, {sprite = 0})
   gridclear(g_breadcrumbs, {})
   gridclear(g_typemask, "neutral")
+  gridclear(g_terrain, "obstacle")
 
   processterrain()
 
   add(g_units.good, createunit("dwarf", 1, "good", 23, 0))
-  add(g_units.evil, createunit("bear", 1, "evil", 20, 4))
+  add(g_units.evil, createunit("bear", 1, "evil", 28, 4))
   add(g_units.evil, createunit("raven", 1, "evil", 21, 4))
   add(g_units.evil, createunit("snake", 1, "evil", 22, 4))
   add(g_units.evil, createunit("deer", 1, "evil", 23, 4))
@@ -330,8 +430,6 @@ function _draw()
   if g_battleanimation != nil then
     battleanimate()
   end
-
-  print(g_terrain[g_select.x][g_select.y], 8, 8, 4)
 end
 
 function processterrain()
@@ -402,7 +500,7 @@ function playerturn()
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
         g_moving = "player"
-        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"})
+        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, false)
       end
     elseif g_moving == "player"
     and g_attacking == false
@@ -441,7 +539,7 @@ function playerturn()
       g_back = true
       gridclear(g_bg, {sprite = 0})
       move(g_lastspace.x, g_lastspace.y, {"good", "neutral"}, {"evil"})
-      g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"})
+      g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, true)
       g_moving = "player"
       g_attacking = false
     end
@@ -470,7 +568,7 @@ end
 function movespace()
   for space in all(g_spaces) do
     if g_typemask[space.x][space.y] == "neutral" then
-      local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false)
+      local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false, false)
       if #attackspaces == 1 then
         return space
       end
@@ -583,8 +681,8 @@ function enemyturn()
         end
 
         g_chosen = unit
-        local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, 6, nil, nil, {"evil"}, {}, false)
-        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"})
+        local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, g_chosen.basespeed, nil, nil, {"evil"}, {}, false, false)
+        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false)
 
         if #comrades == 0 then
           g_select = towardcomrade(g_chosen)
@@ -1070,8 +1168,8 @@ function getunit(x, y)
   return found
 end
 
-function exploremoves(x, y, passable, obstacles)
-  return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles, true)
+function exploremoves(x, y, passable, obstacles, attacking)
+  return explorerange(g_chosen.x, g_chosen.y, g_chosen.speed, 254, passable, obstacles, true, attacking)
 end
 
 function moveanimate()
@@ -1166,7 +1264,7 @@ function move(x, y, friendlies, enemies)
 end
 
 function exploreattacks(targets)
-  local attackspaces = minmaxrange(g_chosen.x, g_chosen.y, g_chosen.attackmin, g_chosen.attackmax, 0, 253, targets, {}, true)
+  local attackspaces = minmaxrange(g_chosen.x, g_chosen.y, g_chosen.attackmin, g_chosen.attackmax, 0, 253, targets, {}, true, true)
   if #attackspaces > 0 then
     if g_turn == "player" then
       g_attacking = "player"
@@ -1204,7 +1302,7 @@ function attack(target)
     counteralignment = {"good"}
   end
 
-  local g_spaces = minmaxrange(g_enemy.x, g_enemy.y, g_enemy.attackmin, g_enemy.attackmax, 0, 253, counteralignment, {}, true)
+  local g_spaces = minmaxrange(g_enemy.x, g_enemy.y, g_enemy.attackmin, g_enemy.attackmax, 0, 253, counteralignment, {}, true, true)
 
   g_battleanimation.counterattack = false
   for space in all(g_spaces) do
@@ -1218,19 +1316,19 @@ function attack(target)
   g_enemy.sprite = 0
 end
 
-function explorerange(x, y, steps, sprite, alignments, obstacles, storebreadcrumb)
+function explorerange(x, y, steps, sprite, alignments, obstacles, storebreadcrumb, attacking)
   g_valid = {}
   spaces = {}
-  return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, storebreadcrumb, spaces)
+  return crawlspace(x, y, steps, sprite, alignments, obstacles, {}, storebreadcrumb, spaces, attacking)
 end
 
-function minmaxrange(x, y, min, max, minsprite, maxsprite, targets, obstacles, storebreadcrumb)
-  local maxspaces = explorerange(x, y, max, maxsprite, targets, obstacles, storebreadcrumb)
-  local minspaces = explorerange(x, y, min, minsprite, targets, obstacles, storebreadcrumb)
+function minmaxrange(x, y, min, max, minsprite, maxsprite, targets, obstacles, storebreadcrumb, attacking)
+  local maxspaces = explorerange(x, y, max, maxsprite, targets, obstacles, storebreadcrumb, attacking)
+  local minspaces = explorerange(x, y, min, minsprite, targets, obstacles, storebreadcrumb, attacking)
   return subtractspaces(maxspaces, minspaces)
 end
 
-function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, storebreadcrumb, spaces)
+function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, storebreadcrumb, spaces, attacking)
   if g_valid[x] == nil then
     g_valid[x] = {}
   end
@@ -1267,19 +1365,43 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
   end
 
   if validspace(x - 1, y, steps, obstacles) then
-    crawlspace(x - 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
+    local movepoints = 1
+
+    if attacking == false then
+      movepoints = 1 / g_chosen.terrain[g_terrain[x-1][y]]
+    end
+
+    crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
-    crawlspace(x + 1, y, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
+    local movepoints = 1
+
+    if attacking == false then
+      movepoints = 1 / g_chosen.terrain[g_terrain[x+1][y]]
+    end
+
+    crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
-    crawlspace(x, y - 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
+    local movepoints = 1
+
+    if attacking == false then
+      movepoints = 1 / g_chosen.terrain[g_terrain[x][y-1]]
+    end
+
+    crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
-    crawlspace(x, y + 1, steps - 1, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces)
+    local movepoints = 1
+
+    if attacking == false then
+      movepoints = 1 / g_chosen.terrain[g_terrain[x][y+1]]
+    end
+
+    crawlspace(x, y + 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   return spaces
@@ -1598,4 +1720,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

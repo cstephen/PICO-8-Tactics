@@ -387,13 +387,24 @@ function _init()
 
   processterrain()
 
-  add(g_units.good, createunit("dwarf", 1, "good", 23, 0))
-  add(g_units.evil, createunit("bear", 1, "evil", 28, 4))
-  add(g_units.evil, createunit("raven", 1, "evil", 21, 4))
-  add(g_units.evil, createunit("snake", 1, "evil", 22, 4))
-  add(g_units.evil, createunit("deer", 1, "evil", 23, 4))
-  add(g_units.evil, createunit("shark", 1, "evil", 24, 4))
-  add(g_units.evil, createunit("frog", 1, "evil", 25, 4))
+  add(g_units.good, createunit("knight", 1, "good", 18, 0))
+  add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
+  add(g_units.good, createunit("lancer", 1, "good", 18, 1))
+  add(g_units.good, createunit("archer", 1, "good", 19, 1))
+
+  local randomunits = {
+    "bear",
+    "raven",
+    "snake",
+    "deer",
+    "shark",
+    "frog"
+  }
+
+  for i=0, 30 do
+    local type = randomunits[flr(rnd(#randomunits - 1)) + 1]
+    add(g_units.evil, createunit(type, 1, "evil", flr(rnd(127)) + 1, flr(rnd(31)) + 1))
+  end
 
   for i=0, g_gridsize.x do
     for j=0, g_gridsize.y do

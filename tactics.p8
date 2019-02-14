@@ -672,38 +672,52 @@ end
 
 function enemyturn()
   if g_moving == false and g_attacking == false and g_battleanimation == nil then
-    for unit in all(g_units.evil) do
-      if unit.actionover == false then
-        g_mapcorner = {
-          x = unit.x - 8,
-          y = unit.y - 8
-        }
+    for evilunit in all(g_units.evil) do
+      local withinproximity = false
 
-        if g_mapcorner.x < 0 then
-          g_mapcorner.x = 0
-        elseif g_mapcorner.x + 16 > 127 then
-          g_mapcorner.x = 111
+      for goodunit in all(g_units.good) do
+        local distance = abs(evilunit.x - goodunit.x) + abs(evilunit.y - goodunit.y)
+        if distance < 15 then
+          withinproximity = true
         end
+      end
 
-        if g_mapcorner.y < 0 then
-          g_mapcorner.y = 0
-        elseif g_mapcorner.y + 16 > 31 then
-          g_mapcorner.y = 15
-        end
-
-        g_chosen = unit
-        local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, g_chosen.basespeed, nil, nil, {"evil"}, {}, false, false)
-        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false)
-
-        if #comrades == 0 then
-          g_select = towardcomrade(g_chosen)
+      if evilunit.actionover == false then
+        if withinproximity == false then
+          g_chosen = evilunit
+          endaction()
         else
-          g_select = movespace()
-        end
+          g_mapcorner = {
+            x = evilunit.x - 8,
+            y = evilunit.y - 8
+          }
 
-        g_moving = "enemy"
-        move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
-        return
+          if g_mapcorner.x < 0 then
+            g_mapcorner.x = 0
+          elseif g_mapcorner.x + 16 > 127 then
+            g_mapcorner.x = 111
+          end
+
+          if g_mapcorner.y < 0 then
+            g_mapcorner.y = 0
+          elseif g_mapcorner.y + 16 > 31 then
+            g_mapcorner.y = 15
+          end
+
+          g_chosen = evilunit
+          local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, g_chosen.basespeed, nil, nil, {"evil"}, {}, false, false)
+          g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false)
+
+          if #comrades == 0 then
+            g_select = towardcomrade(g_chosen)
+          else
+            g_select = movespace()
+          end
+
+          g_moving = "enemy"
+          move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})
+          return
+        end
       end
     end
   elseif g_moving == false and g_attacking == "enemy" then

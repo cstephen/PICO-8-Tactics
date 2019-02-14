@@ -402,7 +402,7 @@ function _init()
   }
 
   for i=0, 30 do
-    local type = randomunits[flr(rnd(#randomunits - 1)) + 1]
+    local type = randomunits[flr(rnd(#randomunits)) + 1]
     add(g_units.evil, createunit(type, 1, "evil", flr(rnd(127)) + 1, flr(rnd(31)) + 1))
   end
 

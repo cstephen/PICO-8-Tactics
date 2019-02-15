@@ -129,8 +129,8 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 2,
-      beach = 5,
+      grass = 1,
+      beach = 1,
       water = 1,
       deepwater = 1,
       sand = 1,
@@ -152,12 +152,12 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
+      grass = 2,
+      beach = 2,
       water = 1,
       deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      sand = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
@@ -175,12 +175,12 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 0.25,
-      beach = 1,
+      grass = 2,
+      beach = 2,
       water = 1,
       deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      sand = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
@@ -199,11 +199,11 @@ g_archetypes = {
     speed = 0,
     terrain = {
       grass = 2,
-      beach = 1,
-      water = 1,
+      beach = 2,
+      water = 2,
       deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      sand = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
@@ -221,12 +221,12 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
+      grass = 2,
+      beach = 2,
       water = 1,
       deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      sand = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
@@ -244,12 +244,12 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
-      water = 1,
-      deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      grass = 2,
+      beach = 2,
+      water = 2,
+      deepwater = 2,
+      sand = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
@@ -267,11 +267,11 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
-      water = 1,
-      deepwater = 1,
-      sand = 1,
+      grass = 2,
+      beach = 2,
+      water = 2,
+      deepwater = 2,
+      sand = 2,
       bridge = 1,
       obstacle = 0
     }
@@ -290,11 +290,11 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
+      grass = 2,
+      beach = 2,
       water = 1,
       deepwater = 1,
-      sand = 1,
+      sand = 2,
       bridge = 1,
       obstacle = 0
     }
@@ -313,12 +313,12 @@ g_archetypes = {
     might = 0,
     speed = 0,
     terrain = {
-      grass = 1,
-      beach = 1,
-      water = 1,
-      deepwater = 1,
-      sand = 1,
-      bridge = 1,
+      grass = 0,
+      beach = 0,
+      water = 2,
+      deepwater = 2,
+      sand = 0,
+      bridge = 0,
       obstacle = 0
     }
   },
@@ -338,8 +338,8 @@ g_archetypes = {
     terrain = {
       grass = 1,
       beach = 1,
-      water = 1,
-      deepwater = 1,
+      water = 2,
+      deepwater = 2,
       sand = 1,
       bridge = 1,
       obstacle = 0
@@ -403,7 +403,18 @@ function _init()
 
   for i=0, 30 do
     local type = randomunits[flr(rnd(#randomunits)) + 1]
-    add(g_units.evil, createunit(type, 1, "evil", flr(rnd(127)) + 1, flr(rnd(31)) + 1))
+
+    local randx
+    local randy
+    local terraintype
+
+    repeat
+      randx = flr(rnd(127)) + 1
+      randy = flr(rnd(31)) + 1
+      terraintype = g_terrain[randx][randy]
+    until g_archetypes[type].terrain[terraintype] > 0
+
+    add(g_units.evil, createunit(type, 1, "evil", randx, randy))
   end
 
   for i=0, g_gridsize.x do
@@ -1392,41 +1403,41 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
   if validspace(x - 1, y, steps, obstacles) then
     local movepoints = 1
 
-    if attacking == false then
-      movepoints = 1 / g_chosen.terrain[g_terrain[x-1][y]]
+    local terrainskill = g_chosen.terrain[g_terrain[x-1][y]]
+    if attacking == false and terrainskill > 0 then
+      movepoints = 1 / terrainskill
+      crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
-
-    crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
     local movepoints = 1
 
-    if attacking == false then
-      movepoints = 1 / g_chosen.terrain[g_terrain[x+1][y]]
+    local terrainskill = g_chosen.terrain[g_terrain[x+1][y]]
+    if attacking == false and terrainskill > 0 then
+      movepoints = 1 / terrainskill
+      crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
-
-    crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
     local movepoints = 1
 
-    if attacking == false then
-      movepoints = 1 / g_chosen.terrain[g_terrain[x][y-1]]
+    local terrainskill = g_chosen.terrain[g_terrain[x][y-1]]
+    if attacking == false and terrainskill > 0 then
+      movepoints = 1 / terrainskill
+      crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
-
-    crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
     local movepoints = 1
 
-    if attacking == false then
-      movepoints = 1 / g_chosen.terrain[g_terrain[x][y+1]]
+    local terrainskill = g_chosen.terrain[g_terrain[x][y+1]]
+    if attacking == false and terrainskill > 0 then
+      movepoints = 1 / terrainskill
+      crawlspace(x, y + 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
-
-    crawlspace(x, y + 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   return spaces

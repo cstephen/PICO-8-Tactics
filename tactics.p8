@@ -74,19 +74,19 @@ g_sprites = {
   wolf = {
     evil = 65
   },
-  skel = {
+  skelet = {
     evil = 66
   },
   witch = {
     evil = 67
   },
-  zombi = {
+  zombie = {
     evil = 68
   },
   ghost = {
     evil = 69
   },
-  lagon = {
+  creatur = {
     evil = 70
   },
   jack = {
@@ -233,7 +233,7 @@ g_archetypes = {
       obstacle = 0
     }
   },
-  skel = {
+  skelet = {
     basehp = 2,
     basemight = 1,
     basespeed = 6,
@@ -279,7 +279,7 @@ g_archetypes = {
       obstacle = 2
     }
   },
-  zombi = {
+  zombie = {
     basehp = 4,
     basemight = 1,
     basespeed = 2,
@@ -325,7 +325,7 @@ g_archetypes = {
       obstacle = 1
     }
   },
-  lagon = {
+  creatur = {
     basehp = 2,
     basemight = 1,
     basespeed = 2,
@@ -414,18 +414,18 @@ function _init()
   processterrain()
 
   add(g_units.good, createunit("knight", 1, "good", 18, 0))
-  add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
-  add(g_units.good, createunit("lancer", 1, "good", 18, 1))
-  add(g_units.good, createunit("archer", 1, "good", 19, 1))
+  -- add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
+  -- add(g_units.good, createunit("lancer", 1, "good", 18, 1))
+  -- add(g_units.good, createunit("archer", 1, "good", 19, 1))
 
   local randomunits = {
     "frank",
     "wolf",
-    "skel",
+    "skelet",
     "witch",
-    "zombi",
+    "zombie",
     "ghost",
-    "lagon",
+    "creatur",
     "jack"
   }
 
@@ -1784,4 +1784,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

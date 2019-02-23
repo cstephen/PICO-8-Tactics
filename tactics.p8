@@ -1434,8 +1434,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     local terrainskill = g_chosen.terrain[g_terrain[x-1][y]]
     if attacking == false and terrainskill > 0 then
       movepoints = 1 / terrainskill
-      crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
+
+    crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x + 1, y, steps, obstacles) then
@@ -1444,8 +1445,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     local terrainskill = g_chosen.terrain[g_terrain[x+1][y]]
     if attacking == false and terrainskill > 0 then
       movepoints = 1 / terrainskill
-      crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
+
+    crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y - 1, steps, obstacles) then
@@ -1454,8 +1456,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     local terrainskill = g_chosen.terrain[g_terrain[x][y-1]]
     if attacking == false and terrainskill > 0 then
       movepoints = 1 / terrainskill
-      crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
+
+    crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   if validspace(x, y + 1, steps, obstacles) then
@@ -1464,8 +1467,9 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     local terrainskill = g_chosen.terrain[g_terrain[x][y+1]]
     if attacking == false and terrainskill > 0 then
       movepoints = 1 / terrainskill
-      crawlspace(x, y + 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
     end
+
+    crawlspace(x, y + 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
   return spaces

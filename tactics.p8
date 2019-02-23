@@ -617,11 +617,12 @@ end
 
 function movespace()
   for space in all(g_spaces) do
-    if g_typemask[space.x][space.y] == "neutral" then
-      local attackspaces = minmaxrange(space.x, space.y, g_chosen.attackmin, g_chosen.attackmax, nil, nil, {"good"}, {}, false, false)
-      if #attackspaces == 1 then
-        return space
-      end
+    local maxspaces = explorerange(space.x, space.y, g_chosen.attackmax, nil, {"good"}, {}, false)
+    local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false)
+    local attackspaces = subtractspaces(maxspaces, minspaces)
+
+    if #attackspaces == 1 then
+      return space
     end
   end
 
@@ -657,55 +658,6 @@ function unitdistance(unit1, unit2)
 end
 
 function towardcomrade(unit)
-  local nearestdistance = 127
-  local nearestcomrade = nil
-
-  for comrade in all(g_units.evil) do
-    if comrade.x != unit.x and comrade.y != unit.y then
-      local distance = unitdistance(unit, comrade)
-      if distance < nearestdistance then
-        nearestdistance = distance
-        nearestcomrade = comrade
-      end
-    end
-  end
-
-  local space = {
-    x = unit.x,
-    y = unit.y
-  }
-
-  if nearestcomrade != nil then
-    local closerx = copy(space)
-    if unit.x - nearestcomrade.x > 0 then
-      closerx.x -= 1
-    else
-      closerx.x += 1
-    end
-
-    local closery = copy(space)
-    if unit.y - nearestcomrade.y > 0 then
-      closery.y -= 1
-    else
-      closery.y += 1
-    end
-
-    local randomaxis = flr(rnd(2))
-    if randomaxis == 0 then
-      if unitdistance(closerx, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closerx.x][closerx.y] == "neutral" then
-        return closerx
-      elseif unitdistance(closery, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closery.x][closery.y] == "neutral" then
-        return closery
-      end
-    else
-      if unitdistance(closery, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closery.x][closery.y] == "neutral" then
-        return closery
-      elseif unitdistance(closerx, nearestcomrade) < unitdistance(unit, nearestcomrade) and g_typemask[closerx.x][closerx.y] == "neutral" then
-        return closerx
-      end
-    end
-  end
-
   return movespace()
 end
 
@@ -746,12 +698,7 @@ function enemyturn()
           g_chosen = evilunit
           local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, g_chosen.basespeed, nil, nil, {"evil"}, {}, false, false)
           g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false)
-
-          if #comrades == 0 then
-            g_select = towardcomrade(g_chosen)
-          else
-            g_select = movespace()
-          end
+          g_select = movespace()
 
           g_moving = "enemy"
           move(g_select.x, g_select.y, {"evil", "neutral"}, {"good"})

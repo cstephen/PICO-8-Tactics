@@ -86,7 +86,7 @@ g_sprites = {
   ghost = {
     evil = 69
   },
-  creatur = {
+  lagoon = {
     evil = 70
   },
   jack = {
@@ -325,7 +325,7 @@ g_archetypes = {
       obstacle = 1
     }
   },
-  creatur = {
+  lagoon = {
     basehp = 2,
     basemight = 1,
     basespeed = 2,
@@ -425,7 +425,7 @@ function _init()
     "witch",
     "zombie",
     "ghost",
-    "creatur",
+    "lagoon",
     "jack"
   }
 

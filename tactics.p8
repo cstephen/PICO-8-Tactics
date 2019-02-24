@@ -1022,7 +1022,13 @@ end
 function damage(alignment)
   if alignment == "good"
   and g_enemy.hp > 0 then
-    g_chosen.hp -= g_enemy.might / 3 * g_enemy.level
+    local dealtdamage = g_enemy.might / 3 * g_enemy.level
+    g_chosen.hp -= dealtdamage
+
+    if g_enemy.type == "vampir" then
+      g_enemy.hp += dealtdamage
+    end
+
     g_enemy.xp += g_chosen.level / 10
     if g_chosen.hp < 1 then
       g_chosen.hp = 0
@@ -1034,7 +1040,13 @@ function damage(alignment)
     end
   elseif alignment == "evil"
   and g_chosen.hp > 0 then
-    g_enemy.hp -= g_chosen.might / 3 * g_chosen.level
+    local dealtdamage = g_chosen.might / 3 * g_chosen.level
+    g_enemy.hp -= dealtdamage
+
+    if g_chosen.type == "vampir" then
+      g_chosen.hp += dealtdamage
+    end
+
     g_chosen.xp += g_enemy.level / 10
     if g_enemy.hp < 1 then
       g_enemy.hp = 0
@@ -1749,4 +1761,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

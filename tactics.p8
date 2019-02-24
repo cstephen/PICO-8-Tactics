@@ -415,9 +415,9 @@ function _init()
   processterrain()
 
   add(g_units.good, createunit("knight", 1, "good", 18, 0))
-  -- add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
-  -- add(g_units.good, createunit("lancer", 1, "good", 18, 1))
-  -- add(g_units.good, createunit("archer", 1, "good", 19, 1))
+  add(g_units.good, createunit("dwarf", 1, "good", 19, 0))
+  add(g_units.good, createunit("lancer", 1, "good", 18, 1))
+  add(g_units.good, createunit("archer", 1, "good", 19, 1))
 
   local randomunits = {
     "frank",
@@ -457,10 +457,16 @@ function _init()
 end
 
 function _update()
-  if g_turn == "player" then
-    playerturn()
+  if g_titlescreen == true then
+    if btnp(4) or btnp(5) then
+      g_titlescreen = false
+    end
   else
-    enemyturn()
+    if g_turn == "player" then
+      playerturn()
+    else
+      enemyturn()
+    end
   end
 end
 
@@ -547,8 +553,6 @@ function playerturn()
   end
 
   if btnp(4) and g_moveanimation == nil then
-    g_titlescreen = false
-
     if g_moving == false
     and g_attacking == false then
       for unit in all(getunit(g_select.x, g_select.y)) do
@@ -585,8 +589,6 @@ function playerturn()
   end
 
   if btnp(5) then
-    g_titlescreen = false
-
     if g_moving == "player"
     and g_attacking == false then
       gridclear(g_bg, {sprite = 0})

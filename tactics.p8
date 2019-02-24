@@ -441,7 +441,7 @@ function _init()
       randx = flr(rnd(127)) + 1
       randy = flr(rnd(31)) + 1
       terraintype = g_terrain[randx][randy]
-    until g_archetypes[type].terrain[terraintype] > 0
+    until g_archetypes[type].terrain[terraintype] > 0 and g_typemask[randx][randy] == "neutral"
 
     add(g_units.evil, createunit(type, flr(rnd(3)) + 1, "evil", randx, randy))
   end

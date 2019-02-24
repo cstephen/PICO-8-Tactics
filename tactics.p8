@@ -451,6 +451,10 @@ function _init()
       local sprite = mget(i, j)
       if sprite > 127 and sprite < 192 then
         g_typemask[i][j] = "obstacle"
+      elseif sprite > 0 and sprite < 5 then
+        g_typemask[i][j] = "good"
+      elseif sprite > 15 and sprite < 24 then
+        g_typemask[i][j] = "evil"
       end
     end
   end
@@ -1400,7 +1404,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     g_breadcrumbs[x][y] = copy(breadcrumb)
   end
 
-  if validspace(x - 1, y, steps, obstacles) then
+  if validspace(x - 1, y, steps, obstacles, attacking) then
     local movepoints = 1
 
     local terrainskill = g_chosen.terrain[g_terrain[x-1][y]]
@@ -1411,7 +1415,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     crawlspace(x - 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
-  if validspace(x + 1, y, steps, obstacles) then
+  if validspace(x + 1, y, steps, obstacles, attacking) then
     local movepoints = 1
 
     local terrainskill = g_chosen.terrain[g_terrain[x+1][y]]
@@ -1422,7 +1426,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     crawlspace(x + 1, y, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
-  if validspace(x, y - 1, steps, obstacles) then
+  if validspace(x, y - 1, steps, obstacles, attacking) then
     local movepoints = 1
 
     local terrainskill = g_chosen.terrain[g_terrain[x][y-1]]
@@ -1433,7 +1437,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
     crawlspace(x, y - 1, steps - movepoints, sprite, alignments, obstacles, copy(breadcrumb), storebreadcrumb, spaces, attacking)
   end
 
-  if validspace(x, y + 1, steps, obstacles) then
+  if validspace(x, y + 1, steps, obstacles, attacking) then
     local movepoints = 1
 
     local terrainskill = g_chosen.terrain[g_terrain[x][y+1]]
@@ -1447,13 +1451,19 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
   return spaces
 end
 
-function validspace(x, y, steps, obstacles)
+function validspace(x, y, steps, obstacles, attacking)
   if x < 0 or x >= 128 or y < 0 or y >= 32 then
     return false
   end
 
   for obstacle in all(obstacles) do
     if g_typemask[x][y] == obstacle then
+      return false
+    end
+  end
+
+  if attacking == false then
+    if g_typemask[x][y] == "good" or g_typemask[x][y] == "evil" then
       return false
     end
   end

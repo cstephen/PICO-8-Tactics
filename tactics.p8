@@ -562,7 +562,7 @@ function playerturn()
       and g_chosen.alignment == "good"
       and g_chosen.actionover == false then
         g_moving = "player"
-        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, false)
+        g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, false, false)
       end
     elseif g_moving == "player"
     and g_attacking == false
@@ -602,7 +602,7 @@ function playerturn()
       g_back = true
       gridclear(g_bg, {sprite = 0})
       move(g_lastspace.x, g_lastspace.y, {"good", "neutral"}, {"evil"})
-      g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, true)
+      g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"good", "neutral"}, {"obstacle", "evil"}, false, false)
       g_moving = "player"
       g_attacking = false
     end
@@ -710,7 +710,7 @@ function enemyturn()
 
           g_chosen = evilunit
           local comrades = minmaxrange(g_chosen.x, g_chosen.y, 0, g_chosen.basespeed, nil, nil, {"evil"}, {}, false, false)
-          g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false)
+          g_spaces = exploremoves(g_chosen.x, g_chosen.y, {"evil", "neutral"}, {"obstacle", "good"}, false, false)
           g_select = movespace()
 
           g_moving = "enemy"

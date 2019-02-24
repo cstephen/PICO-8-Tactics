@@ -3,6 +3,7 @@ version 8
 __lua__
 
 -- prefix global variables with g_
+g_titlescreen = true
 g_numportals = 5
 g_select = {x = 18, y = 0}
 g_gridsize = {x = 128, y = 32}
@@ -466,6 +467,11 @@ end
 function _draw()
   cls()
 
+  if g_titlescreen == true then
+    sspr(64, 32, 64, 64, 0, 0, 128, 128)
+    return
+  end
+
   mapanimate()
   map(g_mapcorner.x, g_mapcorner.y, 0, 0, 16, 16)
 
@@ -480,8 +486,6 @@ function _draw()
   if g_battleanimation != nil then
     battleanimate()
   end
-
-  sspr(64, 32, 64, 64, 0, 0, 128, 128)
 end
 
 function processterrain()
@@ -543,6 +547,8 @@ function playerturn()
   end
 
   if btnp(4) and g_moveanimation == nil then
+    g_titlescreen = false
+
     if g_moving == false
     and g_attacking == false then
       for unit in all(getunit(g_select.x, g_select.y)) do
@@ -579,6 +585,8 @@ function playerturn()
   end
 
   if btnp(5) then
+    g_titlescreen = false
+
     if g_moving == "player"
     and g_attacking == false then
       gridclear(g_bg, {sprite = 0})
@@ -1738,4 +1746,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

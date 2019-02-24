@@ -926,7 +926,6 @@ function battleanimate()
   if frame <= 30 then
     zoom(0, 1)
   elseif frame > 60 and frame <= 63 then
-    phase2 = "phase 1"
     nudge("good", 1 * nudgefactor)
   elseif frame > 63 and frame <= 66 then
     damage("evil")

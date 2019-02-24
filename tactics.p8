@@ -193,7 +193,7 @@ g_archetypes = {
     basespeed = 1,
     levelhp = 2,
     levelmight = 2,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
     maxhp = 0,
@@ -216,7 +216,7 @@ g_archetypes = {
     basespeed = 4,
     levelhp = 2,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
     maxhp = 0,
@@ -239,7 +239,7 @@ g_archetypes = {
     basespeed = 6,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
     maxhp = 0,
@@ -262,7 +262,7 @@ g_archetypes = {
     basespeed = 3,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 1,
     maxhp = 0,
@@ -285,7 +285,7 @@ g_archetypes = {
     basespeed = 2,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
     maxhp = 0,
@@ -308,7 +308,7 @@ g_archetypes = {
     basespeed = 3,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 3,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
     maxhp = 0,
@@ -331,7 +331,7 @@ g_archetypes = {
     basespeed = 2,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
     maxhp = 0,
@@ -354,7 +354,7 @@ g_archetypes = {
     basespeed = 2,
     levelhp = 1,
     levelmight = 1,
-    levelspeed = 2,
+    levelspeed = 1,
     attackmin = 0,
     attackmax = 2,
     maxhp = 0,
@@ -442,7 +442,7 @@ function _init()
       terraintype = g_terrain[randx][randy]
     until g_archetypes[type].terrain[terraintype] > 0
 
-    add(g_units.evil, createunit(type, flr(rnd(5)) + 1, "evil", randx, randy))
+    add(g_units.evil, createunit(type, flr(rnd(3)) + 1, "evil", randx, randy))
   end
 
   for i=0, g_gridsize.x do
@@ -912,9 +912,10 @@ function battleanimate()
 
   if frame <= 30 then
     zoom(0, 1)
-  elseif frame > 60 and frame <= 50 then
+  elseif frame > 60 and frame <= 63 then
+    phase2 = "phase 1"
     nudge("good", 1 * nudgefactor)
-  elseif frame > 50 and frame <= 66 then
+  elseif frame > 63 and frame <= 66 then
     damage("evil")
     nudge("good", -1 * nudgefactor)
   elseif frame > 81 and frame <= 83 then
@@ -1454,7 +1455,7 @@ __gfx__
 0333333004444440777777775555555503233230077777700b2bb2b0999999990000000000000000000000000000000000000000000000000000000000000000
 0323323004244240772772770ffffff003333330072772700bbbbbb0992992990000000000000000000000000000000000000000000000000000000000000000
 0333333004444440077777700f2ff2f003333330077777703bbbbbb3999999990000000000000000000000000000000000000000000000000000000000000000
-5033333604444440072222700ffffff000333300077777703bbbbbb3929999290000000000000000000000000000000000000000000000000000000000000000
+6333333604444440072222700ffffff000333300077777703bbbbbb3929999290000000000000000000000000000000000000000000000000000000000000000
 03322330004224000787787000f21f00003883000777777033b22b33992222990000000000000000000000000000000000000000000000000000000000000000
 033333300002200000777700000ff000003383000707707033bbbb33099999900000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -1735,4 +1736,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

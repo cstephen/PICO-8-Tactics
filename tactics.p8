@@ -168,7 +168,7 @@ g_archetypes = {
   archer = {
     basehp = 5,
     basemight = 1,
-    basespeed = 3,
+    basespeed = 2,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -212,9 +212,9 @@ g_archetypes = {
     }
   },
   wolf = {
-    basehp = 5,
-    basemight = 1,
-    basespeed = 4,
+    basehp = 4,
+    basemight = 2,
+    basespeed = 2,
     levelhp = 2,
     levelmight = 1,
     levelspeed = 1,
@@ -226,7 +226,7 @@ g_archetypes = {
     speed = 0,
     terrain = {
       grass = 2,
-      beach = 2,
+      beach = 1,
       water = 0,
       deepwater = 0,
       cemetary = 2,
@@ -235,9 +235,9 @@ g_archetypes = {
     }
   },
   vampir = {
-    basehp = 2,
-    basemight = 1,
-    basespeed = 6,
+    basehp = 5,
+    basemight = 2,
+    basespeed = 2,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -252,15 +252,15 @@ g_archetypes = {
       beach = 1,
       water = 0,
       deepwater = 0,
-      cemetary = 1,
-      bridge = 1,
+      cemetary = 2,
+      bridge = 2,
       obstacle = 0
     }
   },
   witch = {
-    basehp = 1,
+    basehp = 3,
     basemight = 1,
-    basespeed = 3,
+    basespeed = 2,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -281,9 +281,9 @@ g_archetypes = {
     }
   },
   zombie = {
-    basehp = 4,
+    basehp = 3,
     basemight = 1,
-    basespeed = 2,
+    basespeed = 1,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -299,14 +299,14 @@ g_archetypes = {
       water = 0,
       deepwater = 0,
       cemetary = 2,
-      bridge = 1,
+      bridge = 2,
       obstacle = 0
     }
   },
   ghost = {
-    basehp = 4,
+    basehp = 3,
     basemight = 1,
-    basespeed = 3,
+    basespeed = 1,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -321,15 +321,15 @@ g_archetypes = {
       beach = 1,
       water = 1,
       deepwater = 1,
-      cemetary = 1,
+      cemetary = 2,
       bridge = 1,
       obstacle = 1
     }
   },
   lagoon = {
-    basehp = 2,
-    basemight = 1,
-    basespeed = 2,
+    basehp = 5,
+    basemight = 2,
+    basespeed = 1,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -350,9 +350,9 @@ g_archetypes = {
     }
   },
   jack = {
-    basehp = 2,
-    basemight = 1,
-    basespeed = 2,
+    basehp = 5,
+    basemight = 2,
+    basespeed = 1,
     levelhp = 1,
     levelmight = 1,
     levelspeed = 1,
@@ -1748,4 +1748,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

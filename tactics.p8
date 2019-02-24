@@ -596,6 +596,7 @@ function playerturn()
       modifyunit(g_chosen, {
         moving = false
       })
+      g_chosen = nil
     elseif g_moving == false
     and g_attacking == "player" then
       g_back = true

@@ -641,7 +641,7 @@ function movespace()
     local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false)
     local attackspaces = subtractspaces(maxspaces, minspaces)
 
-    if #attackspaces == 1 then
+    if #attackspaces == 1 and g_typemask[space.x][space.y] != "evil" then
       return space
     end
   end
@@ -1470,12 +1470,6 @@ function validspace(x, y, steps, obstacles, attacking)
 
   for obstacle in all(obstacles) do
     if g_typemask[x][y] == obstacle then
-      return false
-    end
-  end
-
-  if attacking == false then
-    if g_typemask[x][y] == "good" or g_typemask[x][y] == "evil" then
       return false
     end
   end

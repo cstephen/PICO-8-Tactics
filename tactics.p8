@@ -444,7 +444,7 @@ function _init()
       terraintype = g_terrain[randx][randy]
     until g_archetypes[type].terrain[terraintype] > 0 and g_typemask[randx][randy] == "neutral"
 
-    add(g_units.evil, createunit(type, flr(rnd(3)) + 1, "evil", randx, randy))
+    add(g_units.evil, createunit(type, flr(rnd(10)) + 1, "evil", randx, randy))
   end
 
   for i=0, g_gridsize.x do

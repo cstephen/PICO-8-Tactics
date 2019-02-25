@@ -7,6 +7,7 @@ g_titlescreen = true
 g_numportals = 5
 g_select = {x = 18, y = 0}
 g_gridsize = {x = 128, y = 32}
+g_turnnumber = 1
 
 -- state variables
 g_turn = "player"
@@ -496,6 +497,8 @@ function _draw()
   if g_battleanimation != nil then
     battleanimate()
   end
+
+  showturns()
 end
 
 function processterrain()
@@ -1098,6 +1101,7 @@ function endaction()
     end
 
     if turnover == true then
+      g_turnnumber += 1
       endturn("enemy")
     end
   end
@@ -1150,6 +1154,12 @@ function showstats(unit, screen)
   statprint("lvl:" .. unit.level, screen.pos.x, screen.pos.y + 8, g_colors[unit.alignment], screen.width)
   statprint("hp:" .. flr(unit.hp + 0.5), screen.pos.x, screen.pos.y + 16, g_colors[unit.alignment], screen.width)
   statprint("xp:" .. flr((unit.xp / (3 ^ unit.level)) * 100) .. "%", screen.pos.x, screen.pos.y + 24, g_colors[unit.alignment], screen.width)
+end
+
+function showturns()
+  local turntext = "turn:"..g_turnnumber
+  local turnbox = #(turntext) * 4 + 2
+  statprint(turntext, 126 - turnbox, 118, 11, turnbox)
 end
 
 function createunit(type, level, alignment, x, y)
@@ -1772,4 +1782,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

@@ -431,7 +431,7 @@ function _init()
     "jack"
   }
 
-  for i=0, 50 do
+  for i=0, 100 do
     local type = randomunits[flr(rnd(#randomunits)) + 1]
 
     local randx

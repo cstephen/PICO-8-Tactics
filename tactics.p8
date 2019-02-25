@@ -1037,7 +1037,8 @@ function damage(alignment)
       g_chosen.hp = 0
       g_enemy.xp += g_chosen.level / 5
     end
-    if g_enemy.xp >= 3 ^ g_chosen.level then
+
+    if g_enemy.xp >= 3 ^ g_enemy.level then
       g_enemy.xp = 0
       levelup(g_enemy, g_enemy.level + 1)
     end
@@ -1055,6 +1056,7 @@ function damage(alignment)
       g_enemy.hp = 0
       g_chosen.xp += g_enemy.level / 5
     end
+
     if g_chosen.xp >= 3 ^ g_chosen.level then
       g_chosen.xp = 0
       levelup(g_chosen, g_chosen.level + 1)

@@ -345,7 +345,7 @@ g_archetypes = {
       beach = 1,
       water = 2,
       deepwater = 2,
-      cemetary = 1,
+      cemetary = 0,
       bridge = 0,
       obstacle = 0
     }

@@ -444,7 +444,8 @@ function _init()
       terraintype = g_terrain[randx][randy]
     until g_archetypes[type].terrain[terraintype] > 0 and g_typemask[randx][randy] == "neutral"
 
-    add(g_units.evil, createunit(type, flr(rnd(10)) + 1, "evil", randx, randy))
+    local level = flr(rnd(3)) + flr((abs(randx - 18) + randy) / 16)
+    add(g_units.evil, createunit(type, level, "evil", randx, randy))
   end
 
   for i=0, g_gridsize.x do
@@ -1778,4 +1779,3 @@ __music__
 00 41424344
 00 41424344
 00 41424344
-

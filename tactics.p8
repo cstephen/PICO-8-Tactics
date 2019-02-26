@@ -637,8 +637,8 @@ end
 
 function movespace()
   for space in all(g_spaces) do
-    local maxspaces = explorerange(space.x, space.y, g_chosen.attackmax, nil, {"good"}, {}, false)
-    local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false)
+    local maxspaces = explorerange(space.x, space.y, g_chosen.attackmax, nil, {"good"}, {}, false, true)
+    local minspaces = explorerange(space.x, space.y, g_chosen.attackmin, nil, {"good"}, {}, false, true)
     local attackspaces = subtractspaces(maxspaces, minspaces)
 
     if #attackspaces == 1 and g_typemask[space.x][space.y] != "evil" then

@@ -444,7 +444,7 @@ function _init()
       terraintype = g_terrain[randx][randy]
     until g_archetypes[type].terrain[terraintype] > 0 and g_typemask[randx][randy] == "neutral"
 
-    local level = flr(rnd(3)) + flr((abs(randx - 18) + randy) / 16)
+    local level = flr(rnd(3)) + flr((abs(randx - 18) + randy) / 16) + 1
     add(g_units.evil, createunit(type, level, "evil", randx, randy))
   end
 

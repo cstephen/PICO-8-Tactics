@@ -1430,7 +1430,7 @@ function crawlspace(x, y, steps, sprite, alignments, obstacles, breadcrumb, stor
       end
     end
   else
-    return false
+    return
   end
 
   add(breadcrumb, {

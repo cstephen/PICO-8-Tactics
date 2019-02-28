@@ -483,8 +483,8 @@ function _draw()
   if g_gameover == true then
     local gameovertext1 = "november dawns"
     local gameovertext2 = "turns:" .. g_turnnumber
-    print(gameovertext1, 64 - (#gameovertext1 * 4 / 2), 50, 11)
-    print(gameovertext2, 64 - (#gameovertext2 * 4 / 2), 58, 11)
+    print(gameovertext1, 64 - (#gameovertext1 * 4 / 2), 52, 11)
+    print(gameovertext2, 64 - (#gameovertext2 * 4 / 2), 60, 11)
     return
   end
 

@@ -8,7 +8,7 @@ g_numportals = 5
 g_select = {x = 18, y = 0}
 g_gridsize = {x = 128, y = 32}
 g_turnnumber = 1
-g_gameover = false
+g_winner = nil
 
 -- state variables
 g_turn = "player"
@@ -480,9 +480,15 @@ end
 function _draw()
   cls()
 
-  if g_gameover == true then
+  if g_winner == "good" then
     local gameovertext1 = "november dawns"
     local gameovertext2 = "turns:" .. g_turnnumber
+    print(gameovertext1, 64 - (#gameovertext1 * 4 / 2), 52, 11)
+    print(gameovertext2, 64 - (#gameovertext2 * 4 / 2), 60, 11)
+    return
+  elseif g_winner == "evil" then
+    local gameovertext1 = "darkness consumes"
+    local gameovertext2 = "the world"
     print(gameovertext1, 64 - (#gameovertext1 * 4 / 2), 52, 11)
     print(gameovertext2, 64 - (#gameovertext2 * 4 / 2), 60, 11)
     return
@@ -1094,7 +1100,10 @@ function endaction()
   local turnover = true
 
   if #g_units.evil == 1 then
-    g_gameover = true
+    g_winner = "good"
+    return
+  elseif #g_units.good == 0 then
+    g_winner = "evil"
     return
   end
 

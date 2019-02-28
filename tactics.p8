@@ -8,6 +8,7 @@ g_numportals = 5
 g_select = {x = 18, y = 0}
 g_gridsize = {x = 128, y = 32}
 g_turnnumber = 1
+g_gameover = false
 
 -- state variables
 g_turn = "player"
@@ -478,6 +479,14 @@ end
 
 function _draw()
   cls()
+
+  if g_gameover == true then
+    local gameovertext1 = "november dawns"
+    local gameovertext2 = "turns:" .. g_turnnumber
+    print(gameovertext1, 64 - (#gameovertext1 * 4 / 2), 50, 11)
+    print(gameovertext2, 64 - (#gameovertext2 * 4 / 2), 58, 11)
+    return
+  end
 
   if g_titlescreen == true then
     sspr(64, 32, 64, 64, 0, 0, 128, 128)
@@ -1083,6 +1092,11 @@ end
 function endaction()
   g_chosen.actionover = true
   local turnover = true
+
+  if #g_units.evil == 1 then
+    g_gameover = true
+    return
+  end
 
   if g_turn == "player" then
     for unit in all(g_units.good) do
